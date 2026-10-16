@@ -118,6 +118,12 @@ async function customize(target, name) {
   const rootPath = join(target, 'package.json');
   const pkg = JSON.parse(await readFile(rootPath, 'utf8'));
   pkg.name = name;
+  // The GitHub one-command runner metadata belongs to DevFoundation only.
+  // Generated independent projects must not advertise missing CLI files.
+  delete pkg.bin;
+  delete pkg.files;
+  delete pkg.repository;
+  pkg.description = 'Full-stack TypeScript application generated with DevFoundation.';
   delete pkg.scripts.create;
   delete pkg.scripts.doctor;
   delete pkg.scripts['test:cli'];

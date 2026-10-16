@@ -27,6 +27,10 @@ test('scaffolds a separately named full-stack project and lockfile', async () =>
     const web = JSON.parse(await readFile(join(target, 'apps/web/package.json'), 'utf8'));
     const contracts = JSON.parse(await readFile(join(target, 'packages/contracts/package.json'), 'utf8'));
     assert.equal(root.name, 'sample-app');
+    assert.equal(root.bin, undefined);
+    assert.equal(root.files, undefined);
+    assert.equal(root.repository, undefined);
+    assert.match(root.description, /generated with DevFoundation/);
     assert.equal(lock.name, 'sample-app');
     assert.equal(lock.packages[''].name, 'sample-app');
     assert.equal(api.name, '@sample-app/api');
