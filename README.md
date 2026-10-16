@@ -44,3 +44,13 @@ See [Architecture](docs/ARCHITECTURE.md), [State](docs/PROJECT_STATE.md), and [A
 ## License
 
 No open-source license has been selected. A public repository alone does not grant third parties reuse rights.
+
+## Optional PostgreSQL + Drizzle
+
+The base remains database-free. To create a new PostgreSQL project:
+
+```powershell
+npm run create -- inventory-app --output .. --database postgres
+```
+
+This requires a network installation to produce a compatible lockfile; `--no-install` is intentionally unavailable with `--database postgres`. The project includes PostgreSQL connection validation, an example schema, Drizzle migration scripts, database health endpoint, and disposable integration-test wiring. Configure `apps/api/.env` from its example, generate/commit migrations, and apply them before starting the API. No database is provisioned automatically.

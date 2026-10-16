@@ -1,27 +1,26 @@
 # Project State
 
-- **Goal:** Reusable CLI-first full-stack TypeScript starter for future projects.
+- **Goal:** Reusable CLI-first TypeScript starter with opt-in database modules.
 - **Repository:** SanamRai001/DevFoundation
-- **Working branch:** `feat/f1d-cli-usability` (based on `main`)
-- **Phase:** F1D first-use documentation and CLI output-location improvements implemented; PR #2 draft, awaiting merge approval.
-- **Baseline:** PR #1 squash-merged to `main` at `7cef454fe60421ea3e69f6cea4dcb6680a4da955`; post-merge Ubuntu and Windows CI passed (38860184473).
+- **Branch:** feat/f2-postgres-drizzle-opt-in, based on main at 481cc6756e264ba34351e03d1a5a5c4279f81fba.
+- **Phase:** F2A optional PostgreSQL + Drizzle module, implementation under review.
 
-## Scope / implementation
-- Correct README to use `main` rather than the previous feature branch.
-- Add optional `--output <existing-parent-directory>` to create generated projects alongside the DevFoundation checkout or in another selected location.
-- Keep names strict, reject invalid options, avoid overwrites, stage and clean temporary files, and preserve default behavior.
-- Add Node CLI regression tests covering the output option and collisions.
-- Preserve tiny replaceable React connectivity demo; no management dashboard.
+## Scope
+- Preserve plain `npm run create -- app` flow and its lockfile without PostgreSQL dependencies.
+- Opt-in via `npm run create -- app --database postgres`.
+- Generate database source, schema, config, migration scripts, validation, health route and integration test, CI PostgreSQL service only for opted-in generated projects.
+- Generate a correct lockfile, run clean npm ci, and publish only after a successful install.
+- Do not add Docker/DB/authentication/billing to the core.
 
 ## Verification
-- Baseline PR #1 tests/CI: **PASSED** on Ubuntu and Windows Node 24.
-- F1D Linux + Windows GitHub Actions CI [38861070613](https://github.com/SanamRai001/DevFoundation/actions/runs/38861070613): **PASSED** install, lint, typecheck, tests, CLI regression tests, generated project installation/check and builds.
-- Real browser/manual Windows UI verification: **NOT RUN**.
+- Main from PR #2: Windows/Ubuntu CI green.
+- F2A CLI tests, plain starter, PostgreSQL starter install/build/migrate/integration: NOT YET VERIFIED.
 
 ## Risks
-- Node 24/npm required; local user environment and browser behavior are not verified.
-- Generated projects need product-specific security, authentication, database and deployment decisions.
-- No open-source license selected.
+- Requires reachable PostgreSQL and explicit DATABASE_URL for database-enabled applications.
+- Example table must be replaced with real domain schema; migrations must be committed.
+- The sample connection health endpoint should be removed/protected for deployments where it leaks infrastructure status.
+- No npm registry publishing or deployment planned.
 
 ## Next
-PR #2 is ready for user merge approval after final CI. Do not merge without permission. Next: design an opt-in PostgreSQL/Drizzle module only when its installation flow and concrete use case are clear; keep the mandatory core minimal.
+Fix any CI failures, verify generation on Linux/Windows and integration against disposable PostgreSQL in CI, open a draft PR for review; do not merge without approval.
