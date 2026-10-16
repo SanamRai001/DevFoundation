@@ -15,7 +15,7 @@ function missing(res: Response) {
 // Educational storage only: per Express app, never persisted, not multi-user safe.
 export function registerNotesRoutes(app: Express) {
   let nextId = 1;
-  let notes: Note[] = [];
+  const notes: Note[] = [];
 
   app.get('/api/v1/notes', (_req, res) => {
     res.json(noteListSchema.parse([...notes].reverse()));
