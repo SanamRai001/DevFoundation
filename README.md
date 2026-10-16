@@ -16,7 +16,7 @@ npm run create -- my-app --output ..
 The CLI copies the React/Vite + Express + shared Zod starter into a new project directory, renames workspace identities, keeps the dependency lockfile coherent and installs packages via `npm ci`. With `--output ..`, the project is created **alongside** the cloned DevFoundation repository; without it, the project is created under the current directory. The output parent must already exist. Existing targets are never overwritten. The generator never publishes to GitHub, merges branches or deploys anything.
 
 ```powershell
-cd my-app
+cd ../my-app
 npm run check
 npm run dev
 ```
