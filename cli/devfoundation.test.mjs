@@ -37,6 +37,8 @@ test('scaffolds a separately named full-stack project and lockfile', async () =>
     assert.equal(root.scripts.create, undefined);
     assert.ok(!root.scripts.check.includes('test:cli'));
     assert.match(await readFile(join(target, 'README.md'), 'utf8'), /sample-app/);
+    assert.match(await readFile(join(target, 'LICENSE'), 'utf8'), /MIT License/);
+    assert.match(await readFile(join(target, 'LICENSE'), 'utf8'), /Copyright \(c\) 2026 SanamRai001/);
     assert.match(await readFile(join(target, '.github/workflows/ci.yml'), 'utf8'), /npm ci/);
     assert.ok(!(await readdir(target)).includes('.git'));
     assert.ok(!(await readdir(target)).includes('cli'));
