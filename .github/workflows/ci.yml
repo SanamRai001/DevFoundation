@@ -28,5 +28,13 @@ jobs:
         run: npm run typecheck
       - name: Test
         run: npm run test
+      - name: CLI scaffolding tests
+        run: npm run test:cli
+      - name: Generated project clean install and verification
+        run: |
+          node ./cli/devfoundation.mjs create ci-smoke --no-install
+          cd ci-smoke
+          npm ci --no-audit --no-fund
+          npm run check
       - name: Build
         run: npm run build

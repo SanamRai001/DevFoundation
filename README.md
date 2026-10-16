@@ -1,43 +1,47 @@
 # DevFoundation
 
-A **minimal, reusable TypeScript full-stack starter**, not a project-management application.
+**CLI-first full-stack TypeScript foundation.** No management dashboard or visual project builder.
 
-> Initial foundation is under review. Use it as a production template only after the branch's CI checks and a local smoke test pass.
+## Create a project
 
-## What you get
-- React + Vite web application with a small, replaceable API connection screen
-- Express API with a health endpoint, structured errors, safe defaults, and shutdown handling
-- Shared Zod API contracts
-- npm workspaces, TypeScript, ESLint, Prettier, Vitest, and GitHub Actions
+Requires Node.js 24 LTS and npm. On a fresh clone:
 
-No database, authentication, billing, or custom generator in v0. Those are optional future modules.
-
-## Prerequisites
-- Node.js **24 LTS** and npm (use a recent npm distributed with Node 24)
-- Windows PowerShell, macOS, or Linux
-
-## Development
 ```powershell
+git clone https://github.com/SanamRai001/DevFoundation.git
+cd DevFoundation
+git switch feat/foundation-v0-core
 npm ci
+npm run create -- my-app
+```
+
+The CLI copies the React/Vite + Express + shared Zod starter into `./my-app`, renames workspace identities, keeps the dependency lockfile coherent and installs packages via `npm ci`. Existing target folders are never overwritten. The generator never publishes to GitHub, merges branches or deploys anything.
+
+```powershell
+cd my-app
+npm run check
 npm run dev
 ```
 
-Open http://127.0.0.1:5173 to see the starter's API status. The Express API defaults to http://127.0.0.1:3001. Optional settings are shown in `.env.example`.
+Pass `--no-install` to skip installation. Run `npm run doctor` to inspect the starter's Node version and required files. Run `npm run test:cli` for CLI regression tests.
 
-## Verification
-```powershell
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-```
+## Generated project
 
+- `apps/web`: replaceable React example screen demonstrating API loading/error/success; **not** a DevFoundation management UI.
+- `apps/api`: Express API, health route, bounded request JSON, Helmet and structured error responses.
+- `packages/contracts`: typed Zod contracts.
+- Automated unit and API integration checks, TypeScript, linting, GitHub Actions and docs.
 
-## How to reuse
-Once this foundation is verified and merged, use GitHub's **Use this template** option. Replace the demonstration page and health response details with the new project's functionality, and update `docs/PROJECT_STATE.md`. Keep infrastructure modules optional.
+Frontend: http://127.0.0.1:5173; health endpoint: http://127.0.0.1:3001/api/v1/health.
 
-## Project decisions
-See [Architecture](docs/ARCHITECTURE.md), [Project State](docs/PROJECT_STATE.md), and [Agent Rules](AGENTS.md).
+## Design boundaries
+
+- Initial generator creates one complete full-stack starter. Don't add a template wizard or optional modules before real demand.
+- CLI is invoked locally from this repository; an `npx` command needs publishing and is not available yet.
+- Generated repositories are independent and do not contain generator code or Git history.
+- Use a safe feature branch and reviewed PRs. Add auth, database and deployment later when required.
+
+See [Architecture](docs/ARCHITECTURE.md), [State](docs/PROJECT_STATE.md), and [Agent rules](AGENTS.md).
 
 ## License
-No open-source license has been selected yet. GitHub visibility alone does not grant reuse rights to third parties.
+
+No open-source license has been selected. A public repository alone does not grant third parties reuse rights.
