@@ -3,7 +3,7 @@
 - **Goal:** Reusable minimal full-stack TypeScript starter for future projects.
 - **Repository:** SanamRai001/DevFoundation
 - **Working branch:** `feat/foundation-v0-core`
-- **Phase:** F0 complete; F1 implemented, final CI and local smoke verification pending.
+- **Phase:** F0 complete; F1 implemented; clean-install CI passed, local smoke verification pending.
 - **Baseline:** New empty public GitHub repository; `main` initialized with README, no prior product code.
 
 ## Implemented
@@ -19,7 +19,7 @@ Auth, database, ORM, Docker, queues, payments, admin dashboard, custom generator
 ## Verification
 - First corrected CI run (38857086045): dependency install, lint, typecheck, tests and builds all **PASSED** on Node 24.
 - Bootstrap lockfile export run (38857260016): passed. Lockfile generated and committed.
-- Final clean `npm ci` run on committed lockfile: **PENDING**.
+- Final clean `npm ci` run (38857479139): install, lint, typecheck, tests and build **PASSED** on Node 24.
 - Local Windows dev command, browser smoke and manual response/error handling: **NOT RUN**.
 - No claim of full local verification.
 
@@ -29,4 +29,4 @@ Auth, database, ORM, Docker, queues, payments, admin dashboard, custom generator
 - No license selected; choose before inviting third-party reuse.
 
 ## Next step
-Confirm final CI clean install, open review PR, run Node 24 PowerShell verification and browser smoke test. F2 database work is deferred until reviewed and approved.
+Open review PR, run Node 24 PowerShell verification and browser smoke test. F2 database work is deferred until reviewed and approved.
