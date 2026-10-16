@@ -4,7 +4,21 @@
 
 You will learn why each file exists, how data travels, how to change a feature, and how to prove it works. You won't need a deployment or any cloud account.
 
-## 1. Generate a working example
+## 0. Try the application without installing a database
+
+Start with a real React → Express → Zod application using temporary in-memory storage:
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation beginner-notes --example notes
+cd beginner-notes
+npm run dev
+```
+
+Open http://127.0.0.1:5173 and create, complete and delete notes. This is **a real HTTP API**, but all note data is stored only in memory: it disappears when the API stops or restarts. There is no PostgreSQL, migration, authentication or hosted service. This is safe only for local learning—do not deploy this unprotected notes API publicly.
+
+Inspect `apps/api/src/notes-memory-routes.ts`, `apps/api/src/notes-memory.test.ts`, `packages/contracts/src/index.ts` and `apps/web/src/App.tsx`. Once you understand the request flow, create a **separate project** with PostgreSQL using the following section. Do not simply add a `.env` to the memory starter and expect automatic migration.
+
+## 1. Generate a PostgreSQL-backed working example
 
 Install **Node.js 24**, Git and a **local PostgreSQL server** first. Clone DevFoundation:
 
@@ -16,7 +30,7 @@ npm run create -- learning-notes --output .. --database postgres --example notes
 cd ../learning-notes
 ```
 
-This generates an independent project, with its own `package.json`, code and tests. The `--example notes` flag is optional and requires `--database postgres`; ordinary DevFoundation projects still use the simple API-connectivity demo. The generator installs npm dependencies, but **does not install PostgreSQL or create your database**.
+This generates an independent project, with its own `package.json`, code and tests. The `--example notes` flag also works without `--database postgres`, in which case notes use temporary in-memory storage; ordinary DevFoundation projects still use the simple API-connectivity demo. The generator installs npm dependencies, but **does not install PostgreSQL or create your database**.
 
 ### No-clone alternative
 

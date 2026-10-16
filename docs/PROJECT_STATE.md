@@ -1,24 +1,18 @@
-# DevFoundation project state
+# DevFoundation — project state
 
-- Base: `main` at `4c7b006c64e1c27387cf90cafd7553a77ef7a4e6`; open-source README and MIT license merged.
-- Working branch: `feat/f3a-beginner-notes-example`.
-- Current phase: F3A — optional end-to-end Notes teaching example and detailed follow-along guide.
-- Beginner flow: `npm run create -- learning-notes --database postgres --example notes`.
-- Goal: Prove a real React → Express → Zod → Drizzle → PostgreSQL CRUD workflow without polluting the database-free template.
+- **Baseline:** `main` at `f20cdfbefd9dec37c3f101032fbe2d71b12fb68b`; F3 merged with 10/10 post-merge CI.
+- **Working branch:** `feat/f4-zero-db-preview-accessibility`.
+- **Current phase:** F4 — remove PostgreSQL from first-run Notes example and prepare a safe public interactive preview, browser accessibility tests and release gates.
 
-## Scope and verification
-- Real Notes add/list/complete/delete UI/API with safe validation and generated migrations.
-- Independent user-facing tutorial and first feature-change exercise.
-- Cross-platform generation/build tests and disposable PostgreSQL HTTP CRUD checks added to CI.
-- F3A exact-head GitHub Actions [38869497761](https://github.com/SanamRai001/DevFoundation/actions/runs/38869497761): **all ten jobs passed**, including plain starter, PostgreSQL profile, Notes example and GitHub-source npx installer on Windows/Ubuntu, plus disposable PostgreSQL HTTP CRUD and genuine Notes browser screenshot artifact.
-- Screenshot artifact has been generated automatically; manual visual review and independent beginner usability testing have **not** been completed. No public deployment.
-
-## Risks
-- Notes example has no authentication: **local learning only**.
-- SQL schema migrations require inspection; do not run against real production data.
-- GitHub source CLI still requires cloning/installing; shorter distribution is a future step.
-- No stable public release or npm package publication yet. GitHub-source npx distribution verified cross-platform; npm registry distribution remains unpublished.
-- Release and support policy docs added; independent first-time testing and live demonstration still pending.
+## Acceptance
+- `--example notes` without `--database` builds and runs an Express API backed by disposable process memory; no DB dependency or migration needed.
+- `--database postgres --example notes` keeps real persistent Notes behavior and existing integration tests.
+- Default starter without an example remains unchanged.
+- Browser UI tests verify create, complete, delete, refresh and meaningful error display, plus WCAG A/AA checks.
+- Static public preview is **browser-only demonstration**, explicitly not a hosted API, storage or representation of a deployed full-stack service.
+- Publish preview only after passing review; do not publish live unauthenticated API.
+- The previous GitHub-source CLI integration pin to a deleted/stale branch is replaced with a current revision in CI.
+- **Status:** implementation and verification pending. No npm registry publication; npm 2FA issues do not block this phase.
 
 ## Next
-PR #5 is open as a draft for owner review; do not merge, tag a stable release or deploy without approval. Next: invite independent testers, review real demo and decide whether to create a preview GitHub Release. Registry publishing needs an npm maintainer and 2FA.
+Run exact-head CI, inspect screenshot and open draft PR. Do not merge, release, or deploy an unprotected backend without explicit review. Independent beginner feedback remains tracked in issue #6.

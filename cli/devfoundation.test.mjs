@@ -107,7 +107,6 @@ test('database opt-in rejects invalid modes before touching the filesystem', asy
       ['create', 'app', '--database'],
       ['create', 'app', '--database', 'mysql'],
       ['create', 'app', '--database', 'postgres', '--no-install'],
-      ['create', 'app', '--example', 'notes'],
       ['create', 'app', '--database', 'postgres', '--example', 'wrong'],
       ['create', 'app', '--database', 'postgres', '--example', 'notes', '--no-install'],
       ['create', 'app', '--database', 'postgres', '--database', 'postgres'],
@@ -139,5 +138,21 @@ test('help does not create files', async () => {
     assert.equal(createHelp.status, 0);
     assert.match(createHelp.stdout, /npm run create/);
     assert.deepEqual(await readdir(cwd), []);
+  });
+});
+
+test('Notes mode scaffolds runnable memory API and browser UI without any database', async () => {
+  await inTempFolder(async (cwd) => {
+    const response = invoke(cwd, 'create', 'easy-notes', '--example', 'notes', '--no-install');
+    assert.equal(response.status, 0, response.stderr);
+    const target = join(cwd, 'easy-notes');
+    const pkg = JSON.parse(await readFile(join(target, 'apps/api/package.json'), 'utf8'));
+    assert.equal(pkg.dependencies['drizzle-orm'], undefined);
+    assert.equal(pkg.scripts['db:migrate'], undefined);
+    assert.match(await readFile(join(target, 'apps/api/src/notes-memory-routes.ts'), 'utf8'), /registerNotesRoutes/);
+    assert.match(await readFile(join(target, 'apps/api/src/app.ts'), 'utf8'), /registerNotesRoutes\(app\)/);
+    assert.match(await readFile(join(target, 'apps/web/src/App.tsx'), 'utf8'), /in-memory storage/);
+    assert.match(await readFile(join(target, 'README.md'), 'utf8'), /Notes are shared in process memory/);
+    await assert.rejects(readFile(join(target, 'apps/api/drizzle.config.ts'), 'utf8'));
   });
 });

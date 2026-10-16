@@ -15,7 +15,8 @@ const templateEntries = [
 function usage() {
   console.log([
     'DevFoundation — command-line project starter', '',
-    '  npm run create -- <project-name> [--output <parent-dir>] [--database postgres] [--example notes]',
+    '  npm run create -- <project-name> [--output <parent-dir>] [--example notes]',
+    '  npm run create -- <project-name> [--output <parent-dir>] --database postgres [--example notes]',
     '  npm run create -- <project-name> [--no-install] [--output <parent-dir>]',
     '  npm run doctor',
     '  npm run check',
@@ -23,6 +24,7 @@ function usage() {
     'No management website. React is the generated application starter.',
     'Existing directories are never overwritten; no GitHub repository is created.',
     'Use --output .. to create the new project alongside DevFoundation.',
+    'Notes runs without PostgreSQL by default (memory resets on API restart).',
     'PostgreSQL is opt-in; --database postgres requires dependency installation.',
     'One-command GitHub install (without cloning): npx --yes github:SanamRai001/DevFoundation my-app',
   ].join('\n'));
@@ -206,9 +208,6 @@ function parseCreateOptions(options) {
       throw new Error('Unknown option: ' + option);
     }
   }
-  if (example === 'notes' && database !== 'postgres') {
-    throw new Error('--example notes requires --database postgres.');
-  }
   if (database === 'postgres' && !install) {
     throw new Error('--database postgres cannot use --no-install: dependency lockfile must be resolved. Use normal creation.');
   }
@@ -324,41 +323,72 @@ async function addPostgres(target, name) {
   console.log('Enabled optional PostgreSQL + Drizzle module.');
 }
 
-async function addNotesExample(target, name) {
+async function addNotesExample(target, name, database) {
   const exampleRoot = join(foundationRoot, 'examples', 'notes-app');
   const contracts = join(target, 'packages', 'contracts', 'src', 'index.ts');
-  const schema = join(target, 'apps', 'api', 'src', 'db', 'schema.ts');
   await writeFile(contracts, (await readFile(contracts, 'utf8')) +
     '\n' + await readFile(join(exampleRoot, 'contracts', 'notes-contracts.part.txt'), 'utf8'));
-  await writeFile(schema, (await readFile(schema, 'utf8')) +
-    '\n' + await readFile(join(exampleRoot, 'api', 'schema.part.txt'), 'utf8'));
 
   const apiRoot = join(target, 'apps', 'api', 'src');
-  const routes = await readFile(join(exampleRoot, 'api', 'notes-routes.ts'), 'utf8');
-  const tests = await readFile(join(exampleRoot, 'api', 'notes.test.ts'), 'utf8');
-  await writeFile(join(apiRoot, 'db', 'notes-routes.ts'), routes.replaceAll('@devfoundation/', '@' + name + '/'));
-  await writeFile(join(apiRoot, 'notes.test.ts'), tests.replaceAll('@devfoundation/', '@' + name + '/'));
+  let importPath;
+  if (database === 'postgres') {
+    const schema = join(apiRoot, 'db', 'schema.ts');
+    await writeFile(schema, (await readFile(schema, 'utf8')) +
+      '\n' + await readFile(join(exampleRoot, 'api', 'schema.part.txt'), 'utf8'));
+    await writeFile(join(apiRoot, 'db', 'notes-routes.ts'),
+      (await readFile(join(exampleRoot, 'api', 'notes-routes.ts'), 'utf8'))
+        .replaceAll('@devfoundation/', '@' + name + '/'));
+    await writeFile(join(apiRoot, 'notes.test.ts'),
+      (await readFile(join(exampleRoot, 'api', 'notes.test.ts'), 'utf8'))
+        .replaceAll('@devfoundation/', '@' + name + '/'));
+    importPath = './db/notes-routes.js';
+  } else {
+    await writeFile(join(apiRoot, 'notes-memory-routes.ts'),
+      (await readFile(join(exampleRoot, 'api', 'notes-memory-routes.ts'), 'utf8'))
+        .replaceAll('@devfoundation/', '@' + name + '/'));
+    await writeFile(join(apiRoot, 'notes-memory.test.ts'),
+      (await readFile(join(exampleRoot, 'api', 'notes-memory.test.ts'), 'utf8'))
+        .replaceAll('@devfoundation/', '@' + name + '/'));
+    importPath = './notes-memory-routes.js';
+  }
 
   const appPath = join(apiRoot, 'app.ts');
   let app = await readFile(appPath, 'utf8');
-  if (!app.includes('  registerDatabaseRoutes(app);')) throw new Error('Example API insert point has changed.');
+  const anchor = database === 'postgres'
+    ? '  registerDatabaseRoutes(app);'
+    : '  app.use((_req, res) => {';
+  if (!app.includes(anchor)) throw new Error('Example API insert point has changed.');
   app = app.replace("import helmet from 'helmet';",
-    "import helmet from 'helmet';\nimport { registerNotesRoutes } from './db/notes-routes.js';");
-  app = app.replace('  registerDatabaseRoutes(app);', '  registerDatabaseRoutes(app);\n  registerNotesRoutes(app);');
+    "import helmet from 'helmet';\nimport { registerNotesRoutes } from '" + importPath + "';");
+  app = app.replace(anchor, database === 'postgres'
+    ? anchor + '\n  registerNotesRoutes(app);'
+    : '  registerNotesRoutes(app);\n\n' + anchor);
   await writeFile(appPath, app);
 
   const web = join(target, 'apps', 'web', 'src');
-  for (const [source, destination] of [['App.tsx','App.tsx'], ['styles.css','styles.css']]) {
-    const content = await readFile(join(exampleRoot, 'web', source), 'utf8');
-    await writeFile(join(web, destination), content.replaceAll('@devfoundation/', '@' + name + '/'));
+  for (const source of ['App.tsx', 'styles.css']) {
+    let content = await readFile(join(exampleRoot, 'web', source), 'utf8');
+    content = content.replaceAll('@devfoundation/', '@' + name + '/');
+    if (database !== 'postgres') {
+      content = content.replace('A real React ↔ Express ↔ PostgreSQL example.',
+        'A real React ↔ Express API example with temporary in-memory storage.');
+      content = content.replace('Cannot load notes. Check PostgreSQL, migrations and the API.',
+        'Cannot load notes. Check that the API is running.');
+      content = content.replace('Teaching example — no login or user isolation. Do not publish personal notes here.',
+        'Local learning only. Notes reset when the API restarts; no login or data isolation.');
+    }
+    await writeFile(join(web, source), content);
   }
   const readme = join(target, 'README.md');
+  const note = database === 'postgres'
+    ? 'PostgreSQL mode: configure apps/api/.env, then generate and apply migrations before npm run dev.'
+    : 'Zero-setup mode: no database required. Notes are shared in process memory and reset whenever the API restarts.';
   await writeFile(readme, (await readFile(readme, 'utf8')) +
-    '\n## Full-stack Notes example\n\nThis project includes the DevFoundation Notes learning example.\n' +
-    'Start PostgreSQL, configure apps/api/.env, then generate and apply migrations before running npm run dev.\n' +
-    'Follow https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md for the full explanation.\n' +
-    'The sample has no authentication. It is intended for local learning only.\n');
-  console.log('Enabled full-stack Notes learning example.');
+    '\n## Learn with the Notes example\n\n' + note + '\n' +
+    'Run npm run dev and open http://127.0.0.1:5173.\n' +
+    'Tutorial: https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md\n' +
+    'This is a local learning example, not a public or multi-user application.\n');
+  console.log('Enabled Notes learning example (' + (database === 'postgres' ? 'PostgreSQL' : 'in-memory') + ').');
 }
 
 async function createProject(name, options) {
@@ -395,7 +425,9 @@ async function createProject(name, options) {
     await customize(staging, name);
     if (database === 'postgres') {
       await addPostgres(staging, name);
-      if (example === 'notes') await addNotesExample(staging, name);
+    }
+    if (example === 'notes') await addNotesExample(staging, name, database);
+    if (database === 'postgres') {
       // Re-resolve only this generated project's optional dependencies.
       runNpm(staging, ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
     }

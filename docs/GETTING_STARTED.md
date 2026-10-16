@@ -162,3 +162,15 @@ Replace the example UI with your product, build one complete feature, run `npm r
 ## Follow a complete full-stack project
 
 After learning the basic connectivity demo, follow the [Notes application tutorial](BUILD_A_NOTES_APP.md). It explains a real request from React through Zod, Express and Drizzle to PostgreSQL, plus an exercise and integration tests.
+
+## Notes app with no PostgreSQL
+
+Beginners can now start a working Express-backed Notes example without setting up a database:
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation beginner-notes --example notes
+cd beginner-notes
+npm run dev
+```
+
+Your note operations go through a real Express HTTP API, but data is **temporary** and resets when the API process restarts. For persistent notes and migrations follow [the PostgreSQL Notes tutorial](BUILD_A_NOTES_APP.md#1-generate-a-postgresql-backed-working-example).

@@ -4,7 +4,14 @@ Documented changes to the DevFoundation starter and CLI.
 
 This repository has **not yet declared a stable v1.0 release**. The features below are available on the development branch until reviewed and merged. A GitHub release should only be tagged from a verified `main` commit.
 
-## Unreleased — real-world validation and easier access
+## Unreleased — zero-database beginner experience
+
+- `--example notes` now creates a complete React + Express + shared Zod app without PostgreSQL; data resets when API restarts.
+- The existing PostgreSQL variant remains available through `--database postgres --example notes`.
+- Real browser CRUD and accessibility testing for the zero-database starter.
+- Independent static Notes preview prepared for public read-only-like exploration; not a live database or hosted API.
+
+## Previous work — real-world validation and easier access
 
 - Optional `--example notes` teaching project with React, Express, Zod and PostgreSQL CRUD.
 - Step-by-step Notes tutorial that traces requests, schema migrations and tests.

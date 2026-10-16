@@ -79,6 +79,18 @@ When you opt in to PostgreSQL, the API also receives `src/db/`, `drizzle.config.
 
 The generated React screen is a **replaceable API connectivity demo**, not a finished product UI.
 
+## Start building with no database
+
+You can build a working Notes app with React, Express and Zod **without installing PostgreSQL**:
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation beginner-notes --example notes
+cd beginner-notes
+npm run dev
+```
+
+Open http://127.0.0.1:5173. Create, check off and delete notes through a real Express API. Notes are temporarily stored in the API process and **disappear when it restarts**. This is an educational local example, not a hosted database or multi-user service. For persistent data, add `--database postgres` and follow the [full Notes tutorial](docs/BUILD_A_NOTES_APP.md).
+
 ## Learn by building a real Notes application
 
 Want an actual beginner project rather than a health-check demo? The optional **[complete Notes tutorial](docs/BUILD_A_NOTES_APP.md)** walks through React components, Express HTTP routes, shared Zod validation, Drizzle migrations, database persistence, editing a feature, and testing the full flow.
@@ -87,7 +99,7 @@ Want an actual beginner project rather than a health-check demo? The optional **
 npm run create -- learning-notes --output .. --database postgres --example notes
 ```
 
-This learning example is intentionally unauthenticated and **not for public deployment**; it requires a local PostgreSQL database. The database-free starter remains unchanged.
+The PostgreSQL variant is intentionally unauthenticated and **not for public deployment**; it requires a local PostgreSQL database. The default starter remains unchanged, and `--example notes` alone uses temporary in-memory storage.
 
 ## Everyday commands
 
