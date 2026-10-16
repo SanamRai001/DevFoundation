@@ -18,6 +18,17 @@ cd ../learning-notes
 
 This generates an independent project, with its own `package.json`, code and tests. The `--example notes` flag is optional and requires `--database postgres`; ordinary DevFoundation projects still use the simple API-connectivity demo. The generator installs npm dependencies, but **does not install PostgreSQL or create your database**.
 
+### No-clone alternative
+
+After installing Node.js 24 and Git, you can generate this exact example directly from the public GitHub source without cloning DevFoundation first:
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation learning-notes --database postgres --example notes
+cd learning-notes
+```
+
+This is a source-based GitHub runner, **not** a registry-published `npx create-devfoundation` package. You should review the code you're asking `npx` to execute. The local clone workflow above is also supported.
+
 ## 2. Understand the moving pieces
 
 ```text

@@ -160,3 +160,22 @@ jobs:
       - name: Run real Notes HTTP CRUD test and build
         working-directory: ./notes-real
         run: npm run check
+
+  github-one-command:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Create via npx GitHub package without cloning or npm publishing
+        run: npx --yes github:SanamRai001/DevFoundation#feat/f3a-beginner-notes-example one-command-smoke --no-install
+      - name: Verify standalone generation and dependency lockfile
+        working-directory: ./one-command-smoke
+        run: |
+          npm ci --no-audit --no-fund
+          npm run check

@@ -44,6 +44,15 @@ test('scaffolds a separately named full-stack project and lockfile', async () =>
     assert.ok(!(await readdir(target)).includes('cli'));
   });
 });
+test('one-command CLI entry accepts direct project name', async () => {
+  await inTempFolder(async (cwd) => {
+    const response = invoke(cwd, 'shortcut-project', '--no-install');
+    assert.equal(response.status, 0, response.stderr);
+    const project = JSON.parse(await readFile(join(cwd, 'shortcut-project', 'package.json'), 'utf8'));
+    assert.equal(project.name, 'shortcut-project');
+  });
+});
+
 test('rejects traversal and invalid Windows names with no files created', async () => {
   await inTempFolder(async (cwd) => {
     for (const bad of ['../other', 'Demo', 'two words', 'con', 'bad/path']) {

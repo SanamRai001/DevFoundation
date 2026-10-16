@@ -9,6 +9,18 @@ If you've ever wondered *"how do I start a full-stack TypeScript project without
 
 No DevFoundation management dashboard. No account needed. No generator package to publish or install globally.
 
+## One-command creation from GitHub (no clone)
+
+If you'd rather skip cloning DevFoundation, use this GitHub-hosted CLI directly (Node.js 24 and Git required):
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation hello-world
+cd hello-world
+npm run dev
+```
+
+You can also add `--database postgres --example notes`. This source-based `npx` route downloads the public GitHub package and runs its CLI; it's **not** a published npm registry package. Review the repository/source before executing remote code. Prefer pinned revisions for reproducible team builds. The original clone-and-`npm run create` method remains supported.
+
 ## Start in a few commands
 
 **You need:** [Node.js 24 LTS](https://nodejs.org/en/download) (includes npm), [Git](https://git-scm.com/downloads), and a terminal (PowerShell, macOS or Linux). You don't need PostgreSQL for the default starter.

@@ -24,6 +24,7 @@ function usage() {
     'Existing directories are never overwritten; no GitHub repository is created.',
     'Use --output .. to create the new project alongside DevFoundation.',
     'PostgreSQL is opt-in; --database postgres requires dependency installation.',
+    'One-command GitHub install (without cloning): npx --yes github:SanamRai001/DevFoundation my-app',
   ].join('\n'));
 }
 
@@ -374,7 +375,16 @@ async function createProject(name, options) {
   let published = false;
   try {
     for (const entry of templateEntries) {
-      await copyEntry(join(foundationRoot, entry), join(staging, entry));
+      // npm's GitHub package tarball omits the root lockfile and .gitignore.
+      // Both are bundled under cli/ for the one-command distribution path.
+      const original = join(foundationRoot, entry);
+      const fallback = entry === 'package-lock.json'
+        ? join(foundationRoot, 'cli', 'template-lock.json')
+        : entry === '.gitignore'
+          ? join(foundationRoot, 'cli', 'template-gitignore.txt')
+          : null;
+      await copyEntry(existsSync(original) ? original : (fallback ?? original),
+        join(staging, entry));
     }
     await customize(staging, name);
     if (database === 'postgres') {
@@ -426,7 +436,10 @@ async function main() {
   else if (command === 'doctor' && args.length === 0) await doctor();
   else if (command === 'create' && args.length === 1 && args[0] === '--help') usage();
   else if (command === 'create') await createProject(args[0], args.slice(1));
-  else throw new Error('Unknown command. Run npm run create -- --help for usage.');
+  else if (command && /^[a-z]/.test(command)) {
+    // Supports npx github:SanamRai001/DevFoundation my-project ...
+    await createProject(command, args);
+  } else throw new Error('Unknown command. Run npm run create -- --help for usage.');
 }
 
 main().catch((error) => {
