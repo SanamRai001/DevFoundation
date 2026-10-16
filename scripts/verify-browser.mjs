@@ -8,7 +8,8 @@ const base = mode === 'memory' ? 'http://127.0.0.1:5173'
   : (process.env.PREVIEW_URL ?? new URL('../preview/index.html', import.meta.url).href);
 if (!['memory','preview'].includes(mode)) throw new Error('Usage: node scripts/verify-browser.mjs memory|preview');
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1100, height: 850 } });
+const context = await browser.newContext({ viewport: { width: 1100, height: 850 } });
+const page = await context.newPage();
 
 try {
   await page.goto(base);
