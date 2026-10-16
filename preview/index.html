@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'"/>
+  <meta name="description" content="Try the DevFoundation Notes UI instantly in your browser, then learn React, Express and TypeScript with the real starter."/>
+  <title>DevFoundation — Notes learning preview</title>
+  <link rel="stylesheet" href="./styles.css"/>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://github.com/SanamRai001/DevFoundation" aria-label="DevFoundation on GitHub"><span class="brand-mark" aria-hidden="true">D</span> DevFoundation</a>
+    <nav aria-label="Main navigation">
+      <a href="https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md">Tutorial</a>
+      <a href="https://github.com/SanamRai001/DevFoundation">Source code <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">YOUR FIRST FULL-STACK PROJECT, DEMYSTIFIED</p>
+      <h1 id="hero-title">Learn the stack.<br/><span>Build something real.</span></h1>
+      <p class="lead">Explore the Notes interface instantly, then generate the real app with React, Express, TypeScript and shared Zod validation. PostgreSQL is optional.</p>
+      <div class="hero-actions"><a class="action-primary" href="#demo">Try the interactive preview <span aria-hidden="true">↓</span></a><a class="action-secondary" href="https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md">Read the tutorial</a></div>
+      <p class="preview-explainer"><strong>Transparent demo:</strong> this page simulates Notes in your browser only. It does not run a server or database. Entries disappear when you refresh. The real generated starter uses an Express API.</p>
+    </section>
+    <section class="demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="demo-heading">
+        <div><p class="eyebrow">INTERACTIVE BROWSER-ONLY SANDBOX</p><h2 id="demo-title">Try My Notes</h2></div>
+        <span class="mode"><span class="mode-dot" aria-hidden="true"></span> Temporary browser state</span>
+      </div>
+      <div class="notes-panel">
+        <form id="notes-form">
+          <label for="note-title">New note</label>
+          <div class="form-row"><input id="note-title" type="text" maxlength="120" autocomplete="off" placeholder="e.g. Build my first full-stack app"/><button type="submit" id="add-note">Add note <span aria-hidden="true">+</span></button></div>
+        </form>
+        <p class="error" id="error" role="alert" hidden></p>
+        <p class="count" id="note-count" role="status" aria-live="polite"></p>
+        <ul id="notes-list" aria-label="Preview notes"></ul>
+        <p class="empty" id="empty">Nothing here yet. Write your first note above.</p>
+      </div>
+      <p class="footnote">No account. No tracking. No API calls. Your demo notes remain only in this page until reload.</p>
+    </section>
+    <section class="steps" aria-labelledby="next-title">
+      <p class="eyebrow">NEXT, RUN THE REAL THING</p>
+      <h2 id="next-title">From preview to real code</h2>
+      <p>Install Node.js 24 and Git, then run this in a terminal. The generated project includes a real Express API with temporary in-memory storage—no PostgreSQL setup needed.</p>
+      <div class="command-line"><code id="command">npx --yes github:SanamRai001/DevFoundation beginner-notes --example notes</code><button id="copy-command" type="button">Copy command</button></div>
+      <p id="copy-result" role="status" aria-live="polite"></p>
+      <p>Then run <code>cd beginner-notes</code> followed by <code>npm run dev</code>. Open <code>http://127.0.0.1:5173</code>. Want persistent data later? Follow the <a href="https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md">PostgreSQL walkthrough</a>.</p>
+    </section>
+  </main>
+  <footer><span>DevFoundation is open source under the MIT License.</span><a href="https://github.com/SanamRai001/DevFoundation">Explore the repository <span aria-hidden="true">↗</span></a></footer>
+</body>
+</html>
