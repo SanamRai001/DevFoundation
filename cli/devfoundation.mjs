@@ -15,6 +15,7 @@ const templateEntries = [
 function usage() {
   console.log([
     'DevFoundation — command-line project starter', '',
+    '  npm run create -- <project-name> [--output <parent-dir>] [--database postgres]',
     '  npm run create -- <project-name> [--no-install] [--output <parent-dir>]',
     '  npm run doctor',
     '  npm run check',
@@ -22,6 +23,7 @@ function usage() {
     'No management website. React is the generated application starter.',
     'Existing directories are never overwritten; no GitHub repository is created.',
     'Use --output .. to create the new project alongside DevFoundation.',
+    'PostgreSQL is opt-in; --database postgres requires dependency installation.',
   ].join('\n'));
 }
 
@@ -142,6 +144,8 @@ function parseCreateOptions(options) {
   let install = true;
   let output = process.cwd();
   let outputProvided = false;
+  let database = 'none';
+  let databaseProvided = false;
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
     if (option === '--no-install') {
@@ -155,16 +159,134 @@ function parseCreateOptions(options) {
       }
       output = resolve(parent);
       outputProvided = true;
+    } else if (option === '--database') {
+      if (databaseProvided) throw new Error('Duplicate --database option.');
+      const value = options[++i];
+      if (value !== 'postgres') throw new Error('Only --database postgres is supported.');
+      database = value;
+      databaseProvided = true;
     } else {
       throw new Error('Unknown option: ' + option);
     }
   }
-  return { install, output };
+  if (database === 'postgres' && !install) {
+    throw new Error('--database postgres cannot use --no-install: dependency lockfile must be resolved. Use normal creation.');
+  }
+  return { install, output, database };
+}
+
+
+function runNpm(cwd, args) {
+  const result = spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
+    cwd, stdio: 'inherit', shell: process.platform === 'win32',
+  });
+  if (result.error || result.status !== 0) {
+    throw new Error('npm ' + args[0] + ' failed; generated directory was not published.');
+  }
+}
+
+async function addPostgres(target, name) {
+  const source = join(foundationRoot, 'modules', 'postgres', 'api');
+  const api = join(target, 'apps', 'api');
+  await copyEntry(join(source, 'src', 'db'), join(api, 'src', 'db'));
+  await copyEntry(join(source, 'drizzle.config.ts'), join(api, 'drizzle.config.ts'));
+  await copyEntry(join(source, '.env.example'), join(api, '.env.example'));
+
+  const packagePath = join(api, 'package.json');
+  const pkg = JSON.parse(await readFile(packagePath, 'utf8'));
+  Object.assign(pkg.dependencies, { 'drizzle-orm': '^0.45.2', pg: '^8.16.3', dotenv: '^17.2.0' });
+  Object.assign(pkg.devDependencies, { 'drizzle-kit': '^0.31.10', '@types/pg': '^8.15.5' });
+  pkg.scripts['db:generate'] = 'drizzle-kit generate --config=drizzle.config.ts';
+  pkg.scripts['db:migrate'] = 'drizzle-kit migrate --config=drizzle.config.ts';
+  await writeFile(packagePath, JSON.stringify(pkg, null, 2) + '\n');
+
+  const appFile = join(api, 'src', 'app.ts');
+  let app = await readFile(appFile, 'utf8');
+  app = app.replace(
+    "import helmet from 'helmet';",
+    "import helmet from 'helmet';\nimport { registerDatabaseRoutes } from './db/routes.js';",
+  ).replace(
+    "  app.use((_req, res) => {",
+    "  registerDatabaseRoutes(app);\n\n  app.use((_req, res) => {",
+  );
+  if (!app.includes('registerDatabaseRoutes(app)')) throw new Error('API app registration point changed.');
+  await writeFile(appFile, app);
+
+  const serverFile = join(api, 'src', 'server.ts');
+  let server = await readFile(serverFile, 'utf8');
+  server = "import 'dotenv/config';\n" + server;
+  server = server.replace(
+    "import { loadConfig } from './config.js';",
+    "import { loadConfig } from './config.js';\nimport { getDatabaseUrl, closeDatabase } from './db/client.js';",
+  ).replace(
+    "const config = loadConfig();",
+    "const config = loadConfig();\ngetDatabaseUrl();",
+  ).replace(
+    "  server.close((error) => {",
+    "  server.close(async (error) => {\n    try { await closeDatabase(); } catch { process.exitCode = 1; }",
+  );
+  if (!server.includes('getDatabaseUrl();')) throw new Error('API server startup point changed.');
+  await writeFile(serverFile, server);
+
+  const ciPath = join(target, '.github', 'workflows', 'ci.yml');
+  let ci = await readFile(ciPath, 'utf8');
+  ci = ci.replace(
+    '    runs-on: ubuntu-latest',
+    [
+      '    runs-on: ubuntu-latest',
+      '    services:',
+      '      postgres:',
+      '        image: postgres:17',
+      '        env:',
+      '          POSTGRES_DB: foundation_test',
+      '          POSTGRES_USER: postgres',
+      '          POSTGRES_PASSWORD: postgres',
+      '        ports:',
+      '          - 5432:5432',
+      '        options: >-',
+      '          --health-cmd "pg_isready -U postgres"',
+      '          --health-interval 5s',
+      '          --health-timeout 5s',
+      '          --health-retries 10',
+      '    env:',
+      '      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/foundation_test',
+      '      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/foundation_test',
+    ].join('\n'),
+  ).replace(
+    '      - run: npm run check',
+    [
+      '      - run: npm run db:generate -w @' + name + '/api',
+      '      - run: npm run db:migrate -w @' + name + '/api',
+      '      - run: npm run check',
+    ].join('\n'),
+  );
+  if (!ci.includes('TEST_DATABASE_URL:')) throw new Error('Generated CI structure changed.');
+  await writeFile(ciPath, ci);
+
+  await writeFile(join(target, 'README.md'), (await readFile(join(target, 'README.md'), 'utf8')) + [
+    '', '## PostgreSQL + Drizzle (opt-in)', '',
+    'This project has the PostgreSQL module. PostgreSQL itself is not installed by the generator.',
+    'Create a disposable local PostgreSQL database and copy apps/api/.env.example to apps/api/.env,',
+    'then change DATABASE_URL to real local credentials. Do not commit credentials.',
+    'Run: npm run db:generate -w @' + name + '/api',
+    'Then: npm run db:migrate -w @' + name + '/api',
+    'Commit the generated apps/api/drizzle migration files before deployment.',
+    'Run: npm run dev (API starts only if DATABASE_URL is configured).',
+    'GET /api/v1/db/health tests connectivity without leaking connection details.',
+    'For real integration tests use TEST_DATABASE_URL pointing to a disposable, migrated test DB.',
+    'NEVER point TEST_DATABASE_URL at production. CI provisions its own temporary PostgreSQL instance.',
+    'The sample_notes schema is a learning example; replace it before building real domain features.',
+  ].join('\n') + '\n');
+  await writeFile(join(target, 'docs', 'PROJECT_STATE.md'),
+    (await readFile(join(target, 'docs', 'PROJECT_STATE.md'), 'utf8')) +
+    '\n- Database: PostgreSQL + Drizzle opt-in. First migration generation and apply required.\n');
+
+  console.log('Enabled optional PostgreSQL + Drizzle module.');
 }
 
 async function createProject(name, options) {
   validateName(name);
-  const { install, output } = parseCreateOptions(options);
+  const { install, output, database } = parseCreateOptions(options);
   let parent;
   try {
     parent = await lstat(output);
@@ -185,6 +307,11 @@ async function createProject(name, options) {
       await copyEntry(join(foundationRoot, entry), join(staging, entry));
     }
     await customize(staging, name);
+    if (database === 'postgres') {
+      await addPostgres(staging, name);
+      // Re-resolve only this generated project's optional dependencies.
+      runNpm(staging, ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
+    }
     if (existsSync(destination)) {
       throw new Error('Target appeared during generation; refusing to overwrite: ' + destination);
     }
@@ -193,17 +320,18 @@ async function createProject(name, options) {
   } finally {
     if (!published) await rm(staging, { recursive: true, force: true });
   }
-  console.log('\nCreated ' + destination);
   if (install) {
-    console.log('Installing dependencies with npm ci...');
-    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const result = spawnSync(npm, ['ci', '--no-audit', '--no-fund'], {
-      cwd: destination, stdio: 'inherit', shell: process.platform === 'win32',
-    });
-    if (result.error || result.status !== 0) {
-      throw new Error('Scaffold created, but install failed. Run npm ci inside the new folder.');
+    try {
+      console.log('Installing dependencies with npm ci...');
+      // Windows npm workspace junctions use absolute paths: install only after final rename.
+      runNpm(destination, ['ci', '--no-audit', '--no-fund']);
+    } catch (error) {
+      // A failed fresh scaffold is removed; existing folders are never touched.
+      await rm(destination, { recursive: true, force: true });
+      throw error;
     }
   }
+  console.log('\nCreated ' + destination);
   console.log('\nNext:\n  cd ' + name + '\n  npm run check\n  npm run dev');
 }
 

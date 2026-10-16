@@ -43,3 +43,62 @@ jobs:
           npm run check
       - name: Build
         run: npm run build
+
+  postgres-module:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Create PostgreSQL app without touching base template
+        run: node ./cli/devfoundation.mjs create postgres-smoke --database postgres
+      - name: Compile PostgreSQL app and run non-database tests
+        working-directory: ./postgres-smoke
+        run: npm run check
+      - name: Generate example SQL migration
+        working-directory: ./postgres-smoke
+        run: npm run db:generate -w @postgres-smoke/api
+
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: foundation_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/foundation_test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/foundation_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node ./cli/devfoundation.mjs create postgres-real --database postgres
+      - name: Generate migration
+        working-directory: ./postgres-real
+        run: npm run db:generate -w @postgres-real/api
+      - name: Apply migration to isolated PostgreSQL service
+        working-directory: ./postgres-real
+        run: npm run db:migrate -w @postgres-real/api
+      - name: Run integration and other checks
+        working-directory: ./postgres-real
+        run: npm run check

@@ -86,6 +86,32 @@ test('creates into an existing custom parent without modifying the working folde
     assert.deepEqual(await readdir(parent), ['new-product']);
   });
 });
+test('database opt-in rejects invalid modes before touching the filesystem', async () => {
+  await inTempFolder(async (cwd) => {
+    for (const args of [
+      ['create', 'app', '--database'],
+      ['create', 'app', '--database', 'mysql'],
+      ['create', 'app', '--database', 'postgres', '--no-install'],
+      ['create', 'app', '--database', 'postgres', '--database', 'postgres'],
+    ]) {
+      const response = invoke(cwd, ...args);
+      assert.notEqual(response.status, 0, args.join(' '));
+    }
+    assert.deepEqual(await readdir(cwd), []);
+  });
+});
+
+test('plain generated starter remains database-free', async () => {
+  await inTempFolder(async (cwd) => {
+    const response = invoke(cwd, 'create', 'plain-product', '--no-install');
+    assert.equal(response.status, 0, response.stderr);
+    const packageData = JSON.parse(await readFile(join(cwd, 'plain-product', 'apps/api/package.json'), 'utf8'));
+    assert.equal(packageData.dependencies['drizzle-orm'], undefined);
+    assert.equal(packageData.scripts['db:migrate'], undefined);
+    await assert.rejects(readFile(join(cwd, 'plain-product', 'apps/api/src/db/schema.ts'), 'utf8'));
+  });
+});
+
 test('help does not create files', async () => {
   await inTempFolder(async (cwd) => {
     const r = invoke(cwd, '--help');

@@ -37,3 +37,7 @@ No real secrets in Git. .env is ignored. No auth is implied by a health endpoint
 - Frontend shows loading, success and recoverable failure states.
 - Lint, typecheck, tests, production builds and GitHub Actions pass.
 - No secrets or unrelated features committed.
+
+## F2A optional PostgreSQL module
+
+Use `--database postgres` only for projects that require relational persistence. The generator composes source from `modules/postgres/api`, adds Drizzle ORM, node-postgres, dotenv and Drizzle Kit to the generated API workspace only, and resolves a new dependency lockfile. The base template's dependencies and installed CI remain unaffected. A generated project includes an example table and versioned migration commands; it does **not** run schema synchronization against production at startup. CI provisions a disposable PostgreSQL service for migration and data roundtrip checks. `--no-install` is rejected for this profile to avoid shipping a mismatched lockfile.
