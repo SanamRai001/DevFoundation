@@ -22,7 +22,7 @@ Auth, database, ORM, Docker, queues, payments, admin dashboard, published npm CL
 - Bootstrap lockfile export run (38857260016): passed. Lockfile generated and committed.
 - Final clean `npm ci` run (38857479139): install, lint, typecheck, tests and build **PASSED** on Node 24.
 - CLI regression tests and generated-project clean install/check: **PASSED** in Node 24 GitHub Actions run [38858531791](https://github.com/SanamRai001/DevFoundation/actions/runs/38858531791).
-- Local Windows dev command, browser smoke and manual response/error handling: **NOT RUN**.
+- Manual browser UX smoke: **NOT RUN**, non-blocking for CLI scaffold release. Automated Windows Node 24 full-stack build/test is verified.
 - No claim of full local verification.
 
 ## Known risks
