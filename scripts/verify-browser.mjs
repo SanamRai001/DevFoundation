@@ -35,7 +35,7 @@ try {
   }
 
   await page.getByRole('button', { name: 'Delete Understand Zod contracts' }).click();
-  assert.equal(await page.getByText('Understand Zod contracts').count(), 0);
+  await page.getByText('Understand Zod contracts').waitFor({ state: 'detached' });
 
   if (mode === 'preview') {
     await page.getByLabel('New note').fill('Only in this browser');
