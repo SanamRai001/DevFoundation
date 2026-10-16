@@ -315,14 +315,21 @@ async function createProject(name, options) {
     if (existsSync(destination)) {
       throw new Error('Target appeared during generation; refusing to overwrite: ' + destination);
     }
-    if (install) {
-      console.log('Installing dependencies with npm ci...');
-      runNpm(staging, ['ci', '--no-audit', '--no-fund']);
-    }
     await rename(staging, destination);
     published = true;
   } finally {
     if (!published) await rm(staging, { recursive: true, force: true });
+  }
+  if (install) {
+    try {
+      console.log('Installing dependencies with npm ci...');
+      // Windows npm workspace junctions use absolute paths: install only after final rename.
+      runNpm(destination, ['ci', '--no-audit', '--no-fund']);
+    } catch (error) {
+      // A failed fresh scaffold is removed; existing folders are never touched.
+      await rm(destination, { recursive: true, force: true });
+      throw error;
+    }
   }
   console.log('\nCreated ' + destination);
   console.log('\nNext:\n  cd ' + name + '\n  npm run check\n  npm run dev');
