@@ -22,6 +22,9 @@ jobs:
       # Bootstrap-only. Change to npm ci after the lockfile is committed.
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Bootstrap lockfile export (temporary)
+        run: |
+          node -e "const fs = require('node:fs'); const value = fs.readFileSync('package-lock.json').toString('base64'); console.log('LOCKFILE_BEGIN'); for (let i = 0; i < value.length; i += 4000) console.log('LOCKFILE_CHUNK:' + value.slice(i, i + 4000)); console.log('LOCKFILE_END');"
       - name: Lint
         run: npm run lint
       - name: Typecheck
