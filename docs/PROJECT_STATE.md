@@ -16,7 +16,8 @@
 - Notes example has no authentication: **local learning only**.
 - SQL schema migrations require inspection; do not run against real production data.
 - GitHub source CLI still requires cloning/installing; shorter distribution is a future step.
-- No stable public release or npm package publication yet.
+- No stable public release or npm package publication yet. GitHub-source npx distribution under CI verification.
+- Release and support policy docs added; independent first-time testing and live demonstration still pending.
 
 ## Next
 Fix CI until all tests pass and open reviewable PR. Do not merge/deploy without owner approval. Then improve installer distribution and release evidence.

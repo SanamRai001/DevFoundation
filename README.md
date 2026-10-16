@@ -131,6 +131,12 @@ The CLI copies starter files into a new independent folder, renames package iden
 
 More details: [Getting started and common problems](docs/GETTING_STARTED.md).
 
+## Releases, support and community testing
+
+DevFoundation is still an **early-stage project**, not a broadly tested stable starter. See the [changelog](CHANGELOG.md), [support policy](SUPPORT.md), [security guidance](SECURITY.md), [release checklist](docs/RELEASE_CHECKLIST.md), and [independent beginner testing plan](docs/BETA_TESTING.md). Feedback is welcome via [GitHub Issues](https://github.com/SanamRai001/DevFoundation/issues).
+
+We will only show screenshots and demos recorded from a real working version; no video or independent tester results are claimed yet.
+
 ## For contributors and maintainers
 
 Beginners and experienced developers are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [issue tracker](https://github.com/SanamRai001/DevFoundation/issues). Read [architecture decisions](docs/ARCHITECTURE.md) and [current project state](docs/PROJECT_STATE.md) before larger changes.
