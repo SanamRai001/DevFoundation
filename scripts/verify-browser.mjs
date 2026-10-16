@@ -15,7 +15,10 @@ try {
   await page.getByLabel('New note').fill('Understand Zod contracts');
   await page.getByRole('button', { name: /Add note/ }).click();
   await page.getByText('Understand Zod contracts').waitFor();
-  await page.getByRole('checkbox').check();
+  // The real API responds asynchronously, so wait for React's server-backed
+  // rerender rather than requiring checkbox state to flip in the click tick.
+  await page.getByRole('checkbox').click();
+  await page.waitForFunction(() => document.querySelector('input[type="checkbox"]')?.checked === true);
   assert.equal(await page.getByRole('checkbox').isChecked(), true);
 
   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
