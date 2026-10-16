@@ -24,7 +24,7 @@ try {
 
   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
   assert.equal(accessibility.violations.length, 0,
-    'Accessibility violations:\n' + accessibility.violations.map(v => v.id + ': ' + v.nodes.map(n => n.target.join(' ')).join('; ')).join('\n'));
+    'Accessibility violations:\n' + accessibility.violations.map(v => v.id + ': ' + v.nodes.map(n => n.target.join(' ') + ' (' + (n.failureSummary || '') + ')').join('; ')).join('\n'));
 
   await page.screenshot({ path: mode + '-notes-browser.png', fullPage: true });
 

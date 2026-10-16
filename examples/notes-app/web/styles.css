@@ -18,7 +18,7 @@ ul { list-style: none; margin: 1rem 0 0; padding: 0; }
 li { display: flex; justify-content: space-between; align-items: center; gap: .8rem; padding: 1rem 0; border-top: 1px solid #e5ebf0; }
 .note-label { display: inline-flex; align-items: center; gap: .75rem; overflow-wrap: anywhere; }
 .note-label input { width: 1.15rem; height: 1.15rem; accent-color: #137354; }
-.done { text-decoration: line-through; color: #8496a3; }
+.done { text-decoration: line-through; color: #526579; }
 .delete { background: #f7e9e7; color: #87392f; white-space: nowrap; }
 .delete:hover:not(:disabled) { background: #efd0ca; }
 .error { color: #ac312b; background: #fff0ef; border-radius: 8px; padding: .7rem; }
