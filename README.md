@@ -2,7 +2,7 @@
 
 A **minimal, reusable TypeScript full-stack starter**, not a project-management application.
 
-> Initial foundation is under review. Do not use as a production template until its local checks and dependency lockfile are verified.
+> Initial foundation is under review. Use it as a production template only after the branch's CI checks and a local smoke test pass.
 
 ## What you get
 - React + Vite web application with a small, replaceable API connection screen
@@ -18,7 +18,7 @@ No database, authentication, billing, or custom generator in v0. Those are optio
 
 ## Development
 ```powershell
-npm install
+npm ci
 npm run dev
 ```
 
@@ -32,7 +32,6 @@ npm run test
 npm run build
 ```
 
-**Bootstrap note:** The initial branch cannot include a generated `package-lock.json` until dependencies can be installed and resolved. Run `npm install` with Node 24, commit the generated root lockfile to the feature branch, change CI to `npm ci`, and rerun CI **before merging**. A green install without a committed lockfile is not release-ready.
 
 ## How to reuse
 Once this foundation is verified and merged, use GitHub's **Use this template** option. Replace the demonstration page and health response details with the new project's functionality, and update `docs/PROJECT_STATE.md`. Keep infrastructure modules optional.

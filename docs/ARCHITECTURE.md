@@ -23,8 +23,8 @@ Help one developer start maintainable, secure, testable full-stack TypeScript pr
 No real secrets in Git. .env is ignored. No auth is implied by a health endpoint. API disables X-Powered-By, applies security headers and limits JSON request size. Standard JSON error bodies exclude stack traces. Production still requires a real deployment configuration, HTTPS proxy and monitoring.
 
 ## Known risks and deferred work
-- Initial branch lacks a committed, generated npm lockfile. It must be produced with npm and verified before merge.
-- Runtime package version and toolchain compatibility cannot be fully verified until dependency installation succeeds.
+- Node 24 GitHub Actions produced the committed npm lockfile. A subsequent clean `npm ci` verification is required before considering F1 complete.
+- API/web integration is verified by automated tests; manual browser smoke testing remains necessary.
 - Contract package watch during development does not automatically restart all consumer processes on contract edits; restart `npm run dev` after contract changes.
 - Not a production server deployment recipe.
 - No database, auth, migrations, E2E browser suite, deployment pipelines, or generator until justified.

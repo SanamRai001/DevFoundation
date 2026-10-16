@@ -18,13 +18,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          # Cache enabled once package-lock.json is committed.
-      # Bootstrap-only. Change to npm ci after the lockfile is committed.
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Bootstrap lockfile export (temporary)
-        run: |
-          node -e "const fs = require('node:fs'); const value = fs.readFileSync('package-lock.json').toString('base64'); console.log('LOCKFILE_BEGIN'); for (let i = 0; i < value.length; i += 4000) console.log('LOCKFILE_CHUNK:' + value.slice(i, i + 4000)); console.log('LOCKFILE_END');"
+        run: npm ci --no-audit --no-fund
       - name: Lint
         run: npm run lint
       - name: Typecheck

@@ -3,25 +3,30 @@
 - **Goal:** Reusable minimal full-stack TypeScript starter for future projects.
 - **Repository:** SanamRai001/DevFoundation
 - **Working branch:** `feat/foundation-v0-core`
-- **Phase:** F0 foundation decisions, F1 initial implementation under review (not release-ready).
-- **Baseline:** New empty public GitHub repository; `main` initialized with README, no prior product code or tests.
+- **Phase:** F0 complete; F1 implemented, final CI and local smoke verification pending.
+- **Baseline:** New empty public GitHub repository; `main` initialized with README, no prior product code.
 
-## Intended scope
-React/Vite web example, Express API, shared Zod contract, npm workspaces, lint/format, tests, environment validation, CI, and documentation.
+## Implemented
+- Minimal React/Vite UI for loading/success/error connectivity.
+- Express 5 health endpoint, structured failures, request logging, Helmet, request-size limit, safe errors and graceful shutdown.
+- Shared compiled Zod contract, strict TypeScript and npm workspaces.
+- ESLint, Prettier, Vitest/Supertest tests, GitHub Actions.
+- Generated, committed npm lockfile using Node 24 GitHub Actions.
 
 ## Deliberately excluded
 Auth, database, ORM, Docker, queues, payments, admin dashboard, custom generator and deployment.
 
 ## Verification
-- GitHub repository inspected and feature branch created.
-- Dependency resolution, local Node 24 build and browser smoke test: **NOT RUN** (execution environment has no npm registry access).
-- Root lockfile: **NOT YET GENERATED**. Must commit before merge.
-- No claims of passing CI until a GitHub workflow completes.
+- First corrected CI run (38857086045): dependency install, lint, typecheck, tests and builds all **PASSED** on Node 24.
+- Bootstrap lockfile export run (38857260016): passed. Lockfile generated and committed.
+- Final clean `npm ci` run on committed lockfile: **PENDING**.
+- Local Windows dev command, browser smoke and manual response/error handling: **NOT RUN**.
+- No claim of full local verification.
 
-## Risks
-- Package versions and scripts need real installation and execution.
-- CI must be switched to `npm ci` after lockfile is committed.
-- No license selected; request owner decision before adopting an open-source license.
+## Known risks
+- Manual Windows/browser integration needs user confirmation.
+- Compiled contract watch does not guarantee consumer restarts; restart dev when contract changes.
+- No license selected; choose before inviting third-party reuse.
 
-## Next phase
-Complete F1 implementation, create PR, run Node 24 clean install and required tests, inspect diffs, then decide whether to merge. F2 (database) is explicitly deferred.
+## Next step
+Confirm final CI clean install, open review PR, run Node 24 PowerShell verification and browser smoke test. F2 database work is deferred until reviewed and approved.
