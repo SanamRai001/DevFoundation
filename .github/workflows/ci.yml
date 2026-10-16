@@ -160,6 +160,32 @@ jobs:
       - name: Run real Notes HTTP CRUD test and build
         working-directory: ./notes-real
         run: npm run check
+      - name: Start live Notes API and frontend
+        working-directory: ./notes-real
+        shell: bash
+        run: |
+          npm run start -w @notes-real/api > ../notes-api.log 2>&1 &
+          npm run dev -w @notes-real/web > ../notes-web.log 2>&1 &
+          for i in {1..50}; do
+            if curl -fsS http://127.0.0.1:3001/api/v1/notes >/dev/null &&
+               curl -fsS http://127.0.0.1:5173 >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fS http://127.0.0.1:3001/api/v1/notes >/dev/null
+          curl -fS http://127.0.0.1:5173 >/dev/null
+      - name: Install Chromium for genuine UI screenshot
+        run: npx --yes playwright@1.56.1 install --with-deps chromium
+      - name: Capture actual running Notes UI
+        working-directory: ./notes-real
+        run: npx --yes playwright@1.56.1 screenshot --browser chromium --wait-for-timeout 2000 --full-page http://127.0.0.1:5173 ../notes-example-preview.png
+      - name: Upload preview image for reviewer inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-example-preview
+          path: notes-example-preview.png
+          if-no-files-found: error
 
   github-one-command:
     strategy:
