@@ -2,7 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { cp, lstat, mkdtemp, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const foundationRoot = fileURLToPath(new URL('../', import.meta.url));
@@ -15,12 +15,13 @@ const templateEntries = [
 function usage() {
   console.log([
     'DevFoundation — command-line project starter', '',
-    '  npm run create -- <project-name> [--no-install]',
+    '  npm run create -- <project-name> [--no-install] [--output <parent-dir>]',
     '  npm run doctor',
     '  npm run check',
     '  npm run dev', '',
     'No management website. React is the generated application starter.',
     'Existing directories are never overwritten; no GitHub repository is created.',
+    'Use --output .. to create the new project alongside DevFoundation.',
   ].join('\n'));
 }
 
@@ -137,16 +138,47 @@ async function customize(target, name) {
   await writeFile(join(target, '.github', 'workflows', 'ci.yml'), generatedCi);
 }
 
+function parseCreateOptions(options) {
+  let install = true;
+  let output = process.cwd();
+  let outputProvided = false;
+  for (let i = 0; i < options.length; i++) {
+    const option = options[i];
+    if (option === '--no-install') {
+      if (!install) throw new Error('Duplicate --no-install option.');
+      install = false;
+    } else if (option === '--output') {
+      if (outputProvided) throw new Error('Duplicate --output option.');
+      const parent = options[++i];
+      if (!parent || parent.startsWith('--')) {
+        throw new Error('Missing directory after --output.');
+      }
+      output = resolve(parent);
+      outputProvided = true;
+    } else {
+      throw new Error('Unknown option: ' + option);
+    }
+  }
+  return { install, output };
+}
+
 async function createProject(name, options) {
   validateName(name);
-  if (options.some((arg) => arg !== '--no-install') || options.length > 1) {
-    throw new Error('Unknown or duplicate flag. Supported: --no-install');
+  const { install, output } = parseCreateOptions(options);
+  let parent;
+  try {
+    parent = await lstat(output);
+  } catch {
+    throw new Error('Output parent directory does not exist: ' + output);
   }
-  const destination = resolve(process.cwd(), name);
+  if (!parent.isDirectory()) {
+    throw new Error('Output parent must be a real directory: ' + output);
+  }
+  const destination = join(output, name);
   if (existsSync(destination)) {
     throw new Error('Target already exists; no files changed: ' + destination);
   }
-  const staging = await mkdtemp(join(dirname(destination), '.' + name + '-foundation-'));
+  const staging = await mkdtemp(join(output, '.' + name + '-foundation-'));
   let published = false;
   try {
     for (const entry of templateEntries) {
@@ -162,7 +194,7 @@ async function createProject(name, options) {
     if (!published) await rm(staging, { recursive: true, force: true });
   }
   console.log('\nCreated ' + destination);
-  if (!options.includes('--no-install')) {
+  if (install) {
     console.log('Installing dependencies with npm ci...');
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const result = spawnSync(npm, ['ci', '--no-audit', '--no-fund'], {

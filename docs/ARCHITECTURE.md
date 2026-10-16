@@ -17,14 +17,14 @@ Help one developer start maintainable, secure, testable full-stack TypeScript pr
 5. **CLI-first foundation management.** The local generator creates new projects. React is the optional application's replaceable smoke-test page, not an admin dashboard.
 6. **Local proxy during development.** Web requests use `/api` via Vite proxy; no wildcard CORS in Express.
 7. **Environment parsing occurs when the API starts.** App tests can instantiate Express without opening a port.
-8. **Safe project creation.** The CLI copies allowlisted files, rejects path traversal and collisions, stages writes, rewrites package identities and the lockfile, and installs with npm ci by default.
+8. **Safe project creation.** The CLI copies allowlisted files, rejects traversal in project names and target collisions, stages writes, rewrites package identities and lockfiles, and installs with npm ci by default. The optional `--output` selects an existing real directory for placement, including one outside the DevFoundation checkout.
 9. **Use short-lived feature branches and reviewed PRs.** Never merge/deploy/delete unrelated work by default.
 
 ## Security boundaries
 No real secrets in Git. .env is ignored. No auth is implied by a health endpoint. API disables X-Powered-By, applies security headers and limits JSON request size. Standard JSON error bodies exclude stack traces. Production still requires a real deployment configuration, HTTPS proxy and monitoring.
 
 ## Known risks and deferred work
-- Node 24 CI verified npm ci for the base foundation. The generated project and renamed lockfile still require dedicated CI verification.
+- Node 24 GitHub Actions verifies both the base foundation and an independently generated project with a clean dependency install on Ubuntu and Windows.
 - API/web integration is verified by automated tests; manual browser smoke testing remains necessary.
 - Contract package watch during development does not automatically restart all consumer processes on contract edits; restart `npm run dev` after contract changes.
 - Not a production server deployment recipe.
