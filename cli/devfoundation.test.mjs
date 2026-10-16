@@ -63,7 +63,27 @@ test('rejects unsupported flags and missing name', async () => {
     assert.notEqual(invoke(cwd, 'create').status, 0);
     assert.notEqual(invoke(cwd, 'create', 'demo-app', '--overwrite').status, 0);
     assert.notEqual(invoke(cwd, 'create', 'demo-app', '--no-install', '--no-install').status, 0);
+    assert.notEqual(invoke(cwd, 'create', 'demo-app', '--output').status, 0);
+    assert.notEqual(invoke(cwd, 'create', 'demo-app', '--output', '..', '--output', '..').status, 0);
+    assert.notEqual(invoke(cwd, 'create', 'demo-app', '--output', join(cwd, 'missing')).status, 0);
     assert.deepEqual(await readdir(cwd), []);
+  });
+});
+
+test('creates into an existing custom parent without modifying the working folder', async () => {
+  await inTempFolder(async (cwd) => {
+    const { mkdir } = await import('node:fs/promises');
+    const parent = join(cwd, 'my projects');
+    const launcher = join(cwd, 'launcher');
+    await mkdir(parent);
+    await mkdir(launcher);
+    const result = invoke(launcher, 'create', 'new-product', '--output', parent, '--no-install');
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(await readdir(launcher), []);
+    const root = JSON.parse(await readFile(join(parent, 'new-product', 'package.json'), 'utf8'));
+    assert.equal(root.name, 'new-product');
+    assert.notEqual(invoke(launcher, 'create', 'new-product', '--no-install', '--output', parent).status, 0);
+    assert.deepEqual(await readdir(parent), ['new-product']);
   });
 });
 test('help does not create files', async () => {

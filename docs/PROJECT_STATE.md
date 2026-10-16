@@ -1,34 +1,27 @@
 # Project State
 
-- **Goal:** Reusable minimal full-stack TypeScript starter for future projects.
+- **Goal:** Reusable CLI-first full-stack TypeScript starter for future projects.
 - **Repository:** SanamRai001/DevFoundation
-- **Working branch:** `feat/foundation-v0-core`
-- **Phase:** F1C CLI extension implemented and verified in GitHub Actions; local Windows smoke test pending.
-- **Baseline:** New empty public GitHub repository; `main` initialized with README, no prior product code.
+- **Working branch:** `feat/f1d-cli-usability` (based on `main`)
+- **Phase:** F1D first-use documentation and CLI output-location improvements implemented; PR #2 draft, awaiting merge approval.
+- **Baseline:** PR #1 squash-merged to `main` at `7cef454fe60421ea3e69f6cea4dcb6680a4da955`; post-merge Ubuntu and Windows CI passed (38860184473).
 
-## Implemented
-- Minimal React/Vite UI for loading/success/error connectivity.
-- Express 5 health endpoint, structured failures, request logging, Helmet, request-size limit, safe errors and graceful shutdown.
-- Shared compiled Zod contract, strict TypeScript and npm workspaces.
-- ESLint, Prettier, Vitest/Supertest tests, GitHub Actions.
-- Generated, committed npm lockfile using Node 24 GitHub Actions.
-- CLI project generator, safe name/collision checks, package/workspace renaming, auto npm ci and regression tests.
-
-## Deliberately excluded
-Auth, database, ORM, Docker, queues, payments, admin dashboard, published npm CLI and deployment.
+## Scope / implementation
+- Correct README to use `main` rather than the previous feature branch.
+- Add optional `--output <existing-parent-directory>` to create generated projects alongside the DevFoundation checkout or in another selected location.
+- Keep names strict, reject invalid options, avoid overwrites, stage and clean temporary files, and preserve default behavior.
+- Add Node CLI regression tests covering the output option and collisions.
+- Preserve tiny replaceable React connectivity demo; no management dashboard.
 
 ## Verification
-- First corrected CI run (38857086045): dependency install, lint, typecheck, tests and builds all **PASSED** on Node 24.
-- Bootstrap lockfile export run (38857260016): passed. Lockfile generated and committed.
-- Final clean `npm ci` run (38857479139): install, lint, typecheck, tests and build **PASSED** on Node 24.
-- CLI regression tests and generated-project clean install/check: **PASSED** in Node 24 GitHub Actions run [38858531791](https://github.com/SanamRai001/DevFoundation/actions/runs/38858531791).
-- Manual browser UX smoke: **NOT RUN**, non-blocking for CLI scaffold release. Automated Windows Node 24 full-stack build/test is verified.
-- No claim of full local verification.
+- Baseline PR #1 tests/CI: **PASSED** on Ubuntu and Windows Node 24.
+- F1D Linux + Windows GitHub Actions CI [38861070613](https://github.com/SanamRai001/DevFoundation/actions/runs/38861070613): **PASSED** install, lint, typecheck, tests, CLI regression tests, generated project installation/check and builds.
+- Real browser/manual Windows UI verification: **NOT RUN**.
 
-## Known risks
-- Manual Windows/browser integration needs user confirmation.
-- Compiled contract watch does not guarantee consumer restarts; restart dev when contract changes.
-- No license selected; choose before inviting third-party reuse.
+## Risks
+- Node 24/npm required; local user environment and browser behavior are not verified.
+- Generated projects need product-specific security, authentication, database and deployment decisions.
+- No open-source license selected.
 
-## Next step
-Review draft PR #1, then confirm one Windows CLI smoke test before declaring release-ready; do not merge without approval. F2 remains deferred.
+## Next
+PR #2 is ready for user merge approval after final CI. Do not merge without permission. Next: design an opt-in PostgreSQL/Drizzle module only when its installation flow and concrete use case are clear; keep the mandatory core minimal.

@@ -9,20 +9,19 @@ Requires Node.js 24 LTS and npm. On a fresh clone:
 ```powershell
 git clone https://github.com/SanamRai001/DevFoundation.git
 cd DevFoundation
-git switch feat/foundation-v0-core
 npm ci
-npm run create -- my-app
+npm run create -- my-app --output ..
 ```
 
-The CLI copies the React/Vite + Express + shared Zod starter into `./my-app`, renames workspace identities, keeps the dependency lockfile coherent and installs packages via `npm ci`. Existing target folders are never overwritten. The generator never publishes to GitHub, merges branches or deploys anything.
+The CLI copies the React/Vite + Express + shared Zod starter into a new project directory, renames workspace identities, keeps the dependency lockfile coherent and installs packages via `npm ci`. With `--output ..`, the project is created **alongside** the cloned DevFoundation repository; without it, the project is created under the current directory. The output parent must already exist. Existing targets are never overwritten. The generator never publishes to GitHub, merges branches or deploys anything.
 
 ```powershell
-cd my-app
+cd ../my-app
 npm run check
 npm run dev
 ```
 
-Pass `--no-install` to skip installation. Run `npm run doctor` to inspect the starter's Node version and required files. Run `npm run test:cli` for CLI regression tests.
+Pass `--no-install` to skip installation; use `--output "D:\\Projects"` to choose an existing parent folder. Run `npm run doctor` to inspect the starter's Node version and required files. Run `npm run test:cli` for CLI regression tests.
 
 ## Generated project
 
