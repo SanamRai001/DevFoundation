@@ -193,6 +193,7 @@ async function main() {
   const [command, ...args] = process.argv.slice(2);
   if (!command || command === '--help' || command === 'help') usage();
   else if (command === 'doctor' && args.length === 0) await doctor();
+  else if (command === 'create' && args.length === 1 && args[0] === '--help') usage();
   else if (command === 'create') await createProject(args[0], args.slice(1));
   else throw new Error('Unknown command. Run npm run create -- --help for usage.');
 }

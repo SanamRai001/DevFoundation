@@ -3,7 +3,7 @@
 - **Goal:** Reusable minimal full-stack TypeScript starter for future projects.
 - **Repository:** SanamRai001/DevFoundation
 - **Working branch:** `feat/foundation-v0-core`
-- **Phase:** F1C CLI extension in progress; generator and new-project CI verification pending.
+- **Phase:** F1C CLI extension implemented and verified in GitHub Actions; local Windows smoke test pending.
 - **Baseline:** New empty public GitHub repository; `main` initialized with README, no prior product code.
 
 ## Implemented
@@ -21,7 +21,7 @@ Auth, database, ORM, Docker, queues, payments, admin dashboard, published npm CL
 - First corrected CI run (38857086045): dependency install, lint, typecheck, tests and builds all **PASSED** on Node 24.
 - Bootstrap lockfile export run (38857260016): passed. Lockfile generated and committed.
 - Final clean `npm ci` run (38857479139): install, lint, typecheck, tests and build **PASSED** on Node 24.
-- CLI generation tests and generated-project clean install: **PENDING CI**.
+- CLI regression tests and generated-project clean install/check: **PASSED** in Node 24 GitHub Actions run [38858531791](https://github.com/SanamRai001/DevFoundation/actions/runs/38858531791).
 - Local Windows dev command, browser smoke and manual response/error handling: **NOT RUN**.
 - No claim of full local verification.
 
@@ -31,4 +31,4 @@ Auth, database, ORM, Docker, queues, payments, admin dashboard, published npm CL
 - No license selected; choose before inviting third-party reuse.
 
 ## Next step
-Verify generated project with clean npm ci and npm run check in CI, update draft PR #1, and request only necessary Windows manual verification. F2 remains deferred.
+Review draft PR #1, then confirm one Windows CLI smoke test before declaring release-ready; do not merge without approval. F2 remains deferred.

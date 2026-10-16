@@ -28,6 +28,8 @@ jobs:
         run: npm run typecheck
       - name: Test
         run: npm run test
+      - name: Check CLI environment
+        run: npm run doctor
       - name: CLI scaffolding tests
         run: npm run test:cli
       - name: Generated project clean install and verification

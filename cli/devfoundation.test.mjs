@@ -71,6 +71,9 @@ test('help does not create files', async () => {
     const r = invoke(cwd, '--help');
     assert.equal(r.status, 0);
     assert.match(r.stdout, /DevFoundation/);
+    const createHelp = invoke(cwd, 'create', '--help');
+    assert.equal(createHelp.status, 0);
+    assert.match(createHelp.stdout, /npm run create/);
     assert.deepEqual(await readdir(cwd), []);
   });
 });
