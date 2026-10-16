@@ -9,6 +9,18 @@ If you've ever wondered *"how do I start a full-stack TypeScript project without
 
 No DevFoundation management dashboard. No account needed. No generator package to publish or install globally.
 
+## One-command creation from GitHub (no clone)
+
+If you'd rather skip cloning DevFoundation, use this GitHub-hosted CLI directly (Node.js 24 and Git required):
+
+```powershell
+npx --yes github:SanamRai001/DevFoundation hello-world
+cd hello-world
+npm run dev
+```
+
+You can also add `--database postgres --example notes`. This source-based `npx` route downloads the public GitHub package and runs its CLI; it's **not** a published npm registry package. Review the repository/source before executing remote code. Prefer pinned revisions for reproducible team builds. The original clone-and-`npm run create` method remains supported.
+
 ## Start in a few commands
 
 **You need:** [Node.js 24 LTS](https://nodejs.org/en/download) (includes npm), [Git](https://git-scm.com/downloads), and a terminal (PowerShell, macOS or Linux). You don't need PostgreSQL for the default starter.
@@ -67,6 +79,16 @@ When you opt in to PostgreSQL, the API also receives `src/db/`, `drizzle.config.
 
 The generated React screen is a **replaceable API connectivity demo**, not a finished product UI.
 
+## Learn by building a real Notes application
+
+Want an actual beginner project rather than a health-check demo? The optional **[complete Notes tutorial](docs/BUILD_A_NOTES_APP.md)** walks through React components, Express HTTP routes, shared Zod validation, Drizzle migrations, database persistence, editing a feature, and testing the full flow.
+
+```powershell
+npm run create -- learning-notes --output .. --database postgres --example notes
+```
+
+This learning example is intentionally unauthenticated and **not for public deployment**; it requires a local PostgreSQL database. The database-free starter remains unchanged.
+
 ## Everyday commands
 
 Run the following from **your generated project**:
@@ -108,6 +130,12 @@ The CLI copies starter files into a new independent folder, renames package iden
 - **PostgreSQL connection error:** the database-enabled starter needs a real database and correctly configured `apps/api/.env`; follow the [database guide](docs/GETTING_STARTED.md#optional-postgresql-and-drizzle).
 
 More details: [Getting started and common problems](docs/GETTING_STARTED.md).
+
+## Releases, support and community testing
+
+DevFoundation is still an **early-stage project**, not a broadly tested stable starter. See the [changelog](CHANGELOG.md), [support policy](SUPPORT.md), [security guidance](SECURITY.md), [release checklist](docs/RELEASE_CHECKLIST.md), and [independent beginner testing plan](docs/BETA_TESTING.md). Feedback is welcome via [GitHub Issues](https://github.com/SanamRai001/DevFoundation/issues).
+
+We will only show screenshots and demos recorded from a real working version; no video or independent tester results are claimed yet.
 
 ## For contributors and maintainers
 

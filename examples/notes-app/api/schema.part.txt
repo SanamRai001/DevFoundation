@@ -1,0 +1,9 @@
+
+import { boolean } from 'drizzle-orm/pg-core';
+
+// Stored on PostgreSQL. Real projects should define their own domain tables.
+export const notes = pgTable('notes', {
+  id: serial('id').primaryKey(),
+  title: varchar('title', { length: 120 }).notNull(),
+  completed: boolean('completed').notNull().default(false),
+});

@@ -15,7 +15,7 @@ const templateEntries = [
 function usage() {
   console.log([
     'DevFoundation — command-line project starter', '',
-    '  npm run create -- <project-name> [--output <parent-dir>] [--database postgres]',
+    '  npm run create -- <project-name> [--output <parent-dir>] [--database postgres] [--example notes]',
     '  npm run create -- <project-name> [--no-install] [--output <parent-dir>]',
     '  npm run doctor',
     '  npm run check',
@@ -24,6 +24,7 @@ function usage() {
     'Existing directories are never overwritten; no GitHub repository is created.',
     'Use --output .. to create the new project alongside DevFoundation.',
     'PostgreSQL is opt-in; --database postgres requires dependency installation.',
+    'One-command GitHub install (without cloning): npx --yes github:SanamRai001/DevFoundation my-app',
   ].join('\n'));
 }
 
@@ -117,6 +118,12 @@ async function customize(target, name) {
   const rootPath = join(target, 'package.json');
   const pkg = JSON.parse(await readFile(rootPath, 'utf8'));
   pkg.name = name;
+  // The GitHub one-command runner metadata belongs to DevFoundation only.
+  // Generated independent projects must not advertise missing CLI files.
+  delete pkg.bin;
+  delete pkg.files;
+  delete pkg.repository;
+  pkg.description = 'Full-stack TypeScript application generated with DevFoundation.';
   delete pkg.scripts.create;
   delete pkg.scripts.doctor;
   delete pkg.scripts['test:cli'];
@@ -168,6 +175,8 @@ function parseCreateOptions(options) {
   let outputProvided = false;
   let database = 'none';
   let databaseProvided = false;
+  let example = 'none';
+  let exampleProvided = false;
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
     if (option === '--no-install') {
@@ -187,14 +196,23 @@ function parseCreateOptions(options) {
       if (value !== 'postgres') throw new Error('Only --database postgres is supported.');
       database = value;
       databaseProvided = true;
+    } else if (option === '--example') {
+      if (exampleProvided) throw new Error('Duplicate --example option.');
+      const value = options[++i];
+      if (value !== 'notes') throw new Error('Only --example notes is supported.');
+      example = value;
+      exampleProvided = true;
     } else {
       throw new Error('Unknown option: ' + option);
     }
   }
+  if (example === 'notes' && database !== 'postgres') {
+    throw new Error('--example notes requires --database postgres.');
+  }
   if (database === 'postgres' && !install) {
     throw new Error('--database postgres cannot use --no-install: dependency lockfile must be resolved. Use normal creation.');
   }
-  return { install, output, database };
+  return { install, output, database, example };
 }
 
 
@@ -306,9 +324,46 @@ async function addPostgres(target, name) {
   console.log('Enabled optional PostgreSQL + Drizzle module.');
 }
 
+async function addNotesExample(target, name) {
+  const exampleRoot = join(foundationRoot, 'examples', 'notes-app');
+  const contracts = join(target, 'packages', 'contracts', 'src', 'index.ts');
+  const schema = join(target, 'apps', 'api', 'src', 'db', 'schema.ts');
+  await writeFile(contracts, (await readFile(contracts, 'utf8')) +
+    '\n' + await readFile(join(exampleRoot, 'contracts', 'notes-contracts.part.txt'), 'utf8'));
+  await writeFile(schema, (await readFile(schema, 'utf8')) +
+    '\n' + await readFile(join(exampleRoot, 'api', 'schema.part.txt'), 'utf8'));
+
+  const apiRoot = join(target, 'apps', 'api', 'src');
+  const routes = await readFile(join(exampleRoot, 'api', 'notes-routes.ts'), 'utf8');
+  const tests = await readFile(join(exampleRoot, 'api', 'notes.test.ts'), 'utf8');
+  await writeFile(join(apiRoot, 'db', 'notes-routes.ts'), routes.replaceAll('@devfoundation/', '@' + name + '/'));
+  await writeFile(join(apiRoot, 'notes.test.ts'), tests.replaceAll('@devfoundation/', '@' + name + '/'));
+
+  const appPath = join(apiRoot, 'app.ts');
+  let app = await readFile(appPath, 'utf8');
+  if (!app.includes('  registerDatabaseRoutes(app);')) throw new Error('Example API insert point has changed.');
+  app = app.replace("import helmet from 'helmet';",
+    "import helmet from 'helmet';\nimport { registerNotesRoutes } from './db/notes-routes.js';");
+  app = app.replace('  registerDatabaseRoutes(app);', '  registerDatabaseRoutes(app);\n  registerNotesRoutes(app);');
+  await writeFile(appPath, app);
+
+  const web = join(target, 'apps', 'web', 'src');
+  for (const [source, destination] of [['App.tsx','App.tsx'], ['styles.css','styles.css']]) {
+    const content = await readFile(join(exampleRoot, 'web', source), 'utf8');
+    await writeFile(join(web, destination), content.replaceAll('@devfoundation/', '@' + name + '/'));
+  }
+  const readme = join(target, 'README.md');
+  await writeFile(readme, (await readFile(readme, 'utf8')) +
+    '\n## Full-stack Notes example\n\nThis project includes the DevFoundation Notes learning example.\n' +
+    'Start PostgreSQL, configure apps/api/.env, then generate and apply migrations before running npm run dev.\n' +
+    'Follow https://github.com/SanamRai001/DevFoundation/blob/main/docs/BUILD_A_NOTES_APP.md for the full explanation.\n' +
+    'The sample has no authentication. It is intended for local learning only.\n');
+  console.log('Enabled full-stack Notes learning example.');
+}
+
 async function createProject(name, options) {
   validateName(name);
-  const { install, output, database } = parseCreateOptions(options);
+  const { install, output, database, example } = parseCreateOptions(options);
   let parent;
   try {
     parent = await lstat(output);
@@ -326,11 +381,21 @@ async function createProject(name, options) {
   let published = false;
   try {
     for (const entry of templateEntries) {
-      await copyEntry(join(foundationRoot, entry), join(staging, entry));
+      // npm's GitHub package tarball omits the root lockfile and .gitignore.
+      // Both are bundled under cli/ for the one-command distribution path.
+      const original = join(foundationRoot, entry);
+      const fallback = entry === 'package-lock.json'
+        ? join(foundationRoot, 'cli', 'template-lock.json')
+        : entry === '.gitignore'
+          ? join(foundationRoot, 'cli', 'template-gitignore.txt')
+          : null;
+      await copyEntry(existsSync(original) ? original : (fallback ?? original),
+        join(staging, entry));
     }
     await customize(staging, name);
     if (database === 'postgres') {
       await addPostgres(staging, name);
+      if (example === 'notes') await addNotesExample(staging, name);
       // Re-resolve only this generated project's optional dependencies.
       runNpm(staging, ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund']);
     }
@@ -377,7 +442,10 @@ async function main() {
   else if (command === 'doctor' && args.length === 0) await doctor();
   else if (command === 'create' && args.length === 1 && args[0] === '--help') usage();
   else if (command === 'create') await createProject(args[0], args.slice(1));
-  else throw new Error('Unknown command. Run npm run create -- --help for usage.');
+  else if (command && /^[a-z]/.test(command)) {
+    // Supports npx github:SanamRai001/DevFoundation my-project ...
+    await createProject(command, args);
+  } else throw new Error('Unknown command. Run npm run create -- --help for usage.');
 }
 
 main().catch((error) => {

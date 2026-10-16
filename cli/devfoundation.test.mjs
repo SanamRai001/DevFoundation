@@ -27,6 +27,10 @@ test('scaffolds a separately named full-stack project and lockfile', async () =>
     const web = JSON.parse(await readFile(join(target, 'apps/web/package.json'), 'utf8'));
     const contracts = JSON.parse(await readFile(join(target, 'packages/contracts/package.json'), 'utf8'));
     assert.equal(root.name, 'sample-app');
+    assert.equal(root.bin, undefined);
+    assert.equal(root.files, undefined);
+    assert.equal(root.repository, undefined);
+    assert.match(root.description, /generated with DevFoundation/);
     assert.equal(lock.name, 'sample-app');
     assert.equal(lock.packages[''].name, 'sample-app');
     assert.equal(api.name, '@sample-app/api');
@@ -44,6 +48,15 @@ test('scaffolds a separately named full-stack project and lockfile', async () =>
     assert.ok(!(await readdir(target)).includes('cli'));
   });
 });
+test('one-command CLI entry accepts direct project name', async () => {
+  await inTempFolder(async (cwd) => {
+    const response = invoke(cwd, 'shortcut-project', '--no-install');
+    assert.equal(response.status, 0, response.stderr);
+    const project = JSON.parse(await readFile(join(cwd, 'shortcut-project', 'package.json'), 'utf8'));
+    assert.equal(project.name, 'shortcut-project');
+  });
+});
+
 test('rejects traversal and invalid Windows names with no files created', async () => {
   await inTempFolder(async (cwd) => {
     for (const bad of ['../other', 'Demo', 'two words', 'con', 'bad/path']) {
@@ -94,6 +107,9 @@ test('database opt-in rejects invalid modes before touching the filesystem', asy
       ['create', 'app', '--database'],
       ['create', 'app', '--database', 'mysql'],
       ['create', 'app', '--database', 'postgres', '--no-install'],
+      ['create', 'app', '--example', 'notes'],
+      ['create', 'app', '--database', 'postgres', '--example', 'wrong'],
+      ['create', 'app', '--database', 'postgres', '--example', 'notes', '--no-install'],
       ['create', 'app', '--database', 'postgres', '--database', 'postgres'],
     ]) {
       const response = invoke(cwd, ...args);

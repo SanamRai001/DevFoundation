@@ -32,5 +32,30 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0"
-  }
+  },
+  "bin": {
+    "create-devfoundation": "./cli/devfoundation.mjs"
+  },
+  "files": [
+    "cli/",
+    "apps/",
+    "packages/contracts/",
+    "modules/postgres/",
+    "examples/notes-app/",
+    "LICENSE",
+    ".editorconfig",
+    ".env.example",
+    ".gitignore",
+    ".prettierrc.json",
+    "AGENTS.md",
+    "eslint.config.mjs",
+    "tsconfig.base.json",
+    "README.md"
+  ],
+  "description": "Beginner-friendly React, Express and TypeScript full-stack project starter with optional PostgreSQL and Notes tutorial.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SanamRai001/DevFoundation.git"
+  },
+  "license": "MIT"
 }

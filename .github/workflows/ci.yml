@@ -102,3 +102,106 @@ jobs:
       - name: Run integration and other checks
         working-directory: ./postgres-real
         run: npm run check
+
+  notes-example:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate complete Notes example
+        run: node ./cli/devfoundation.mjs create notes-smoke --database postgres --example notes
+      - name: Verify generated app
+        working-directory: ./notes-smoke
+        run: npm run check
+      - name: Generate Notes SQL migration
+        working-directory: ./notes-smoke
+        run: npm run db:generate -w @notes-smoke/api
+
+  notes-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: notes_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/notes_test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/notes_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node ./cli/devfoundation.mjs create notes-real --database postgres --example notes
+      - name: Generate and apply SQL migration
+        working-directory: ./notes-real
+        run: |
+          npm run db:generate -w @notes-real/api
+          npm run db:migrate -w @notes-real/api
+      - name: Run real Notes HTTP CRUD test and build
+        working-directory: ./notes-real
+        run: npm run check
+      - name: Start live Notes API and frontend
+        working-directory: ./notes-real
+        shell: bash
+        run: |
+          npm run start -w @notes-real/api > ../notes-api.log 2>&1 &
+          npm run dev -w @notes-real/web > ../notes-web.log 2>&1 &
+          for i in {1..50}; do
+            if curl -fsS http://127.0.0.1:3001/api/v1/notes >/dev/null &&
+               curl -fsS http://127.0.0.1:5173 >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fS http://127.0.0.1:3001/api/v1/notes >/dev/null
+          curl -fS http://127.0.0.1:5173 >/dev/null
+      - name: Install Chromium for genuine UI screenshot
+        run: npx --yes playwright@1.56.1 install --with-deps chromium
+      - name: Capture actual running Notes UI
+        working-directory: ./notes-real
+        run: npx --yes playwright@1.56.1 screenshot --browser chromium --wait-for-timeout 2000 --full-page http://127.0.0.1:5173 ../notes-example-preview.png
+      - name: Upload preview image for reviewer inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-example-preview
+          path: notes-example-preview.png
+          if-no-files-found: error
+
+  github-one-command:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Create via npx GitHub package without cloning or npm publishing
+        run: npx --yes github:SanamRai001/DevFoundation#feat/f3a-beginner-notes-example one-command-smoke --no-install
+      - name: Verify standalone generation and dependency lockfile
+        working-directory: ./one-command-smoke
+        run: |
+          npm ci --no-audit --no-fund
+          npm run check

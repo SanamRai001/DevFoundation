@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible setup, CLI or starter bug (no secrets).
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not paste passwords, tokens, .env files or private data."
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11 / Ubuntu / macOS"
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js and npm versions
+      placeholder: "node v24.x, npm ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: starter
+    attributes:
+      label: Starter option
+      options:
+        - Plain project
+        - PostgreSQL
+        - PostgreSQL with Notes example
+        - GitHub npx CLI
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: "Use a disposable folder; redact all secrets."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true

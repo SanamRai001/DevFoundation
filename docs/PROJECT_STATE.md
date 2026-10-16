@@ -1,29 +1,24 @@
-# Project State — DevFoundation
+# DevFoundation project state
 
-- **Repository:** https://github.com/SanamRai001/DevFoundation
-- **Base commit:** `main` at `6afa459c6ab21ea1116d9eea5905dfb581c5a54e` (F2A merged).
-- **Working branch:** `docs/open-source-onboarding`.
-- **Current phase:** F2B — beginner-friendly open-source onboarding, MIT licensing and discoverability documentation.
-- **Scope:** Documentation, MIT license, generated-project license notice, and tests for docs and license inclusion. No database/API architecture changes.
+- Base: `main` at `4c7b006c64e1c27387cf90cafd7553a77ef7a4e6`; open-source README and MIT license merged.
+- Working branch: `feat/f3a-beginner-notes-example`.
+- Current phase: F3A — optional end-to-end Notes teaching example and detailed follow-along guide.
+- Beginner flow: `npm run create -- learning-notes --database postgres --example notes`.
+- Goal: Prove a real React → Express → Zod → Drizzle → PostgreSQL CRUD workflow without polluting the database-free template.
 
-## Delivered in this branch
-- Expanded README with actual first-run commands, options, examples, troubleshooting, beginner expectations and project limitations.
-- `docs/GETTING_STARTED.md` beginner walkthrough, including optional PostgreSQL configuration and secure defaults.
-- `CONTRIBUTING.md` for first-time contributors.
-- Root standard `LICENSE` (MIT, copyright 2026 SanamRai001) with attribution included in every generated project.
-- Maintainer-only metadata checklist for GitHub About/topics and realistic search discoverability.
-- Updated generated project README and CLI test coverage for license preservation.
-- Markdown link/documentation smoke tests through `npm run test:cli`.
+## Scope and verification
+- Real Notes add/list/complete/delete UI/API with safe validation and generated migrations.
+- Independent user-facing tutorial and first feature-change exercise.
+- Cross-platform generation/build tests and disposable PostgreSQL HTTP CRUD checks added to CI.
+- F3A exact-head GitHub Actions [38869497761](https://github.com/SanamRai001/DevFoundation/actions/runs/38869497761): **all ten jobs passed**, including plain starter, PostgreSQL profile, Notes example and GitHub-source npx installer on Windows/Ubuntu, plus disposable PostgreSQL HTTP CRUD and genuine Notes browser screenshot artifact.
+- Screenshot artifact has been generated automatically; manual visual review and independent beginner usability testing have **not** been completed. No public deployment.
 
-## Verification
-- Baseline `main` GitHub Actions run [38863900844](https://github.com/SanamRai001/DevFoundation/actions/runs/38863900844): five jobs PASS.
-- F2B full CI and generated project checks: **PENDING** on this branch.
-- Manual browser UX: not included in F2B.
-
-## Known limits
-- GitHub repository description/topics can't be set by the connected GitHub actions available here; maintainer needs to set them once in the About editor.
-- Search engines and AI answer systems may discover the public repository, but indexing/ranking is never guaranteed.
-- Don't claim the CLI is published to npm or the scaffold is production-ready.
+## Risks
+- Notes example has no authentication: **local learning only**.
+- SQL schema migrations require inspection; do not run against real production data.
+- GitHub source CLI still requires cloning/installing; shorter distribution is a future step.
+- No stable public release or npm package publication yet. GitHub-source npx distribution verified cross-platform; npm registry distribution remains unpublished.
+- Release and support policy docs added; independent first-time testing and live demonstration still pending.
 
 ## Next
-Run Linux/Windows/DB CI and review the draft PR. Do not merge without explicit owner approval. Keep future improvements grounded in real starter use cases.
+PR #5 is open as a draft for owner review; do not merge, tag a stable release or deploy without approval. Next: invite independent testers, review real demo and decide whether to create a preview GitHub Release. Registry publishing needs an npm maintainer and 2FA.
