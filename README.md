@@ -67,6 +67,16 @@ When you opt in to PostgreSQL, the API also receives `src/db/`, `drizzle.config.
 
 The generated React screen is a **replaceable API connectivity demo**, not a finished product UI.
 
+## Learn by building a real Notes application
+
+Want an actual beginner project rather than a health-check demo? The optional **[complete Notes tutorial](docs/BUILD_A_NOTES_APP.md)** walks through React components, Express HTTP routes, shared Zod validation, Drizzle migrations, database persistence, editing a feature, and testing the full flow.
+
+```powershell
+npm run create -- learning-notes --output .. --database postgres --example notes
+```
+
+This learning example is intentionally unauthenticated and **not for public deployment**; it requires a local PostgreSQL database. The database-free starter remains unchanged.
+
 ## Everyday commands
 
 Run the following from **your generated project**:

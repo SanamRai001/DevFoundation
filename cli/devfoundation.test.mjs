@@ -94,6 +94,9 @@ test('database opt-in rejects invalid modes before touching the filesystem', asy
       ['create', 'app', '--database'],
       ['create', 'app', '--database', 'mysql'],
       ['create', 'app', '--database', 'postgres', '--no-install'],
+      ['create', 'app', '--example', 'notes'],
+      ['create', 'app', '--database', 'postgres', '--example', 'wrong'],
+      ['create', 'app', '--database', 'postgres', '--example', 'notes', '--no-install'],
       ['create', 'app', '--database', 'postgres', '--database', 'postgres'],
     ]) {
       const response = invoke(cwd, ...args);

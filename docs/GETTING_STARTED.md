@@ -158,3 +158,7 @@ CI creates a disposable PostgreSQL database for integration tests. On your machi
 ## What's next?
 
 Replace the example UI with your product, build one complete feature, run `npm run check`, and record your progress in `docs/PROJECT_STATE.md`. For contributing improvements back to DevFoundation, see [CONTRIBUTING.md](../CONTRIBUTING.md). License terms: [MIT](../LICENSE).
+
+## Follow a complete full-stack project
+
+After learning the basic connectivity demo, follow the [Notes application tutorial](BUILD_A_NOTES_APP.md). It explains a real request from React through Zod, Express and Drizzle to PostgreSQL, plus an exercise and integration tests.
