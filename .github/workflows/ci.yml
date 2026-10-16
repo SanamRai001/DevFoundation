@@ -199,9 +199,78 @@ jobs:
         with:
           node-version: '24'
       - name: Create via npx GitHub package without cloning or npm publishing
-        run: npx --yes github:SanamRai001/DevFoundation#feat/f3a-beginner-notes-example one-command-smoke --no-install
+        run: npx --yes github:SanamRai001/DevFoundation#${{ github.event.pull_request.head.sha || github.sha }} one-command-smoke --no-install
       - name: Verify standalone generation and dependency lockfile
         working-directory: ./one-command-smoke
         run: |
           npm ci --no-audit --no-fund
           npm run check
+
+  notes-memory:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Generate the Notes example with no PostgreSQL
+        run: node ./cli/devfoundation.mjs create memory-smoke --example notes
+      - name: Verify full standalone frontend, API and Notes tests
+        working-directory: ./memory-smoke
+        run: npm run check
+
+  beginner-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node ./cli/devfoundation.mjs create memory-browser --example notes
+      - name: Build real Notes example
+        working-directory: ./memory-browser
+        run: npm run check
+      - name: Start real Notes API, web and isolated static preview
+        shell: bash
+        run: |
+          cd memory-browser
+          npm run start -w @memory-browser/api > ../memory-api.log 2>&1 &
+          npm run dev -w @memory-browser/web > ../memory-web.log 2>&1 &
+          cd ..
+          python3 -m http.server 4174 --directory preview > preview-server.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3001/api/v1/notes >/dev/null &&
+               curl -fsS http://127.0.0.1:5173 >/dev/null &&
+               curl -fsS http://127.0.0.1:4174 >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fS http://127.0.0.1:3001/api/v1/notes >/dev/null
+          curl -fS http://127.0.0.1:5173 >/dev/null
+          curl -fS http://127.0.0.1:4174 >/dev/null
+      - name: Install pinned browser test tools and Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund playwright@1.56.1 @axe-core/playwright@4.11.0
+          npx playwright install --with-deps chromium
+      - name: Verify real Notes CRUD UI and accessibility
+        run: node scripts/verify-browser.mjs memory
+      - name: Verify static demo is temporary, accessible and clearly labeled
+        env:
+          PREVIEW_URL: http://127.0.0.1:4174
+        run: node scripts/verify-browser.mjs preview
+      - name: Upload real browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beginner-browser-evidence
+          path: |
+            memory-notes-browser.png
+            preview-notes-browser.png
+          if-no-files-found: warn

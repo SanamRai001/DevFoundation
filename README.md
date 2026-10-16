@@ -79,6 +79,10 @@ When you opt in to PostgreSQL, the API also receives `src/db/`, `drizzle.config.
 
 The generated React screen is a **replaceable API connectivity demo**, not a finished product UI.
 
+## Interactive preview (browser-only)
+
+An isolated static UI preview is available as source in [preview/](preview/). Its add/complete/delete actions run in the visitor's own browser and **do not call the Express API**. A public preview URL will be added after the static deployment is reviewed; we will not publicly deploy the unauthenticated Notes backend.
+
 ## Start building with no database
 
 You can build a working Notes app with React, Express and Zod **without installing PostgreSQL**:

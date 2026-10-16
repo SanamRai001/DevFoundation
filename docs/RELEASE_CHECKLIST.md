@@ -37,3 +37,13 @@ Recommend an initial **pre-release** before declaring stable. Release tags and n
 ## Security
 
 The learning Notes example is unauthenticated and must not be publicly deployed as-is. Real products need permissions, monitoring and backups.
+
+## F4 zero-database and public-preview gates
+
+- [ ] Verify `--example notes` runs a full Express + React example without PostgreSQL, on Windows and Linux.
+- [ ] Browser E2E exercises add, complete, refresh persistence, delete, and an API error in the real memory backend.
+- [ ] Browser E2E verifies the static visitor demo resets on refresh and cannot contact an API.
+- [ ] axe-core automated WCAG A/AA checks pass; human keyboard/screen-reader testing remains desirable.
+- [ ] Public preview site serves **only** static HTML/CSS/JS and clearly labels simulation, with no external data storage.
+- [ ] Preview URL and screenshots are linked only after successful reviewed deployment.
+- [ ] Source-based GitHub one-command smoke test checks the current PR/head SHA, not an obsolete feature branch.
