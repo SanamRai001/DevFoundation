@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const foundationRoot = fileURLToPath(new URL('../', import.meta.url));
 const templateEntries = [
   '.editorconfig', '.env.example', '.gitignore', '.prettierrc.json', 'AGENTS.md',
-  'apps', 'eslint.config.mjs', 'package.json', 'package-lock.json', 'packages',
+  'apps', 'LICENSE', 'eslint.config.mjs', 'package.json', 'package-lock.json', 'packages',
   'tsconfig.base.json',
 ];
 
@@ -64,14 +64,36 @@ async function copyEntry(from, to) {
 function generatedReadme(name) {
   return [
     '# ' + name, '',
-    'Generated from DevFoundation. Replace the example React status screen with real features.', '',
-    'Requires Node.js 24 LTS and npm.', '',
-    'Start: npm ci, then npm run dev.',
-    'Verify: npm run check.', '',
-    'Frontend: http://127.0.0.1:5173',
-    'API health: http://127.0.0.1:3001/api/v1/health', '',
-    'This project has no Git history. Run git init -b main if desired.',
-    'Never commit secrets. Plan small vertical slices and keep docs/PROJECT_STATE.md current.',
+    'A full-stack TypeScript project created with [DevFoundation](https://github.com/SanamRai001/DevFoundation).',
+    'React + Vite frontend, Express API and Zod contracts in one npm workspace.', '',
+    '## Start here', '',
+    'Requires Node.js 24 LTS and npm. Dependencies were installed when this project was created unless you used --no-install.', '',
+    '```powershell',
+    'npm ci',
+    'npm run check',
+    'npm run dev',
+    '```', '',
+    'Open http://127.0.0.1:5173 (web) and http://127.0.0.1:3001/api/v1/health (API).',
+    'Press Ctrl+C to stop the dev servers.', '',
+    '## Edit your app', '',
+    '- apps/web/src/App.tsx — replaceable React connection-demo page.',
+    '- apps/api/src/app.ts — Express routes and error handling.',
+    '- packages/contracts/src/index.ts — shared Zod response schemas and types.',
+    '- docs/PROJECT_STATE.md — record the next feature and tests.', '',
+    'Build a small complete UI + API feature and test both success and failure cases.', '',
+    '## Commands', '',
+    '- npm run dev — run frontend and API together.',
+    '- npm run check — lint, typecheck, tests and build.',
+    '- npm run test — run tests.',
+    '- npm run build — compile production assets.',
+    '- npm ci — install exactly from the lockfile.', '',
+    '## Version control and security', '',
+    'This project has no Git history by default; run git init -b main when ready.',
+    'Keep secrets in untracked .env files. Authentication and production deployment are not included.', '',
+    '## License and attribution', '',
+    'Starter code comes from DevFoundation under the MIT License (see LICENSE).',
+    'Keep the original copyright and license notice for reused starter portions.',
+    'You may choose separate terms for your own additions where legally appropriate.', '',
   ].join('\n') + '\n';
 }
 
